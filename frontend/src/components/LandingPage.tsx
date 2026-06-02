@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Bookmark, BookOpen, Database, Globe, Lightbulb } from "lucide-react";
 import RuixenMoonChat from "@/components/ui/ruixen-moon-chat";
+import { useNavigate } from "react-router-dom";
 
-interface LandingPageProps {
-  onSearchSubmit: (subject: string) => void;
-}
-
-export default function LandingPage({ onSearchSubmit }: LandingPageProps) {
+export default function LandingPage() {
+  const navigate = useNavigate();
   const [isSearching, setIsSearching] = useState(false);
 
   const sampleChips = [
@@ -20,7 +18,7 @@ export default function LandingPage({ onSearchSubmit }: LandingPageProps) {
     setIsSearching(true);
     setTimeout(() => {
       setIsSearching(false);
-      onSearchSubmit(subject);
+      navigate(`/chat?subject=${encodeURIComponent(subject)}`);
     }, 1000);
   };
 

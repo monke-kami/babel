@@ -21,6 +21,7 @@ import {
   ArrowUpRight,
   BookmarkCheck
 } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -42,10 +43,7 @@ interface SavedSubject {
   topicsCount: number;
 }
 
-interface ChatPageProps {
-  initialSubject?: string;
-  onNavigateBack: () => void;
-}
+
 
 // Subject database for rich contextual feedback
 const SUBJECT_DATABASE: Record<string, {
@@ -118,7 +116,11 @@ const SUBJECT_DATABASE: Record<string, {
   }
 };
 
-export default function ChatPage({ initialSubject = "", onNavigateBack }: ChatPageProps) {
+export default function ChatPage() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const initialSubject = searchParams.get("subject") || "";
+
   // Try matching subject code or default to CST302
   const parsedCode = initialSubject.trim().toUpperCase();
   const matchedCode = Object.keys(SUBJECT_DATABASE).find(
@@ -404,10 +406,9 @@ I can help you review:
           </button>
         </div>
 
-        {/* Sidebar Footer */}
         <div className="px-3 mt-auto border-t border-white/5 pt-4">
           <button 
-            onClick={() => onNavigateBack()}
+            onClick={() => navigate("/")}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all cursor-pointer"
           >
             <ArrowLeft className="h-4.5 w-4.5" />
