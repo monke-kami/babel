@@ -1,6 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
-  <!-- Rounded royal blue background -->
-  <rect width="64" height="64" rx="14" fill="#0C3BEB"/>
-  <!-- Centered white outline Bookmark -->
-  <path d="M44 49L32 41L20 49V19C20 16.7909 21.7909 15 24 15H40C42.2091 15 44 16.7909 44 19V49Z" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="79" height="79" viewBox="0 0 79 79" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_752_6)">
+<g filter="url(#filter0_d_752_6)">
+<path d="M28 34.1333V17.4219C28 16.0843 29.0843 15 30.4219 15H48.5381C49.8757 15 50.96 16.0745 50.96 17.4121V53.2667C50.96 76.2267 43.3067 53.2667 43.3067 53.2667L39.48 41.7867L35.6533 53.2667C35.6533 53.2667 28 76.2267 28 53.2667V34.1333Z" stroke="white" stroke-width="3.82667" shape-rendering="crispEdges"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_752_6" x="17.6101" y="5.82085" width="43.7397" height="69.2519" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="1.21097"/>
+<feGaussianBlur stdDeviation="4.2384"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_752_6"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_752_6" result="shape"/>
+</filter>
+<clipPath id="clip0_752_6">
+<rect width="79" height="79" fill="white"/>
+</clipPath>
+</defs>
 </svg>
