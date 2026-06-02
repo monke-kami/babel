@@ -9,12 +9,12 @@
   --font-mono: "JetBrains Mono", monospace;
   
   --color-surface-container-high: #2c2832;
-  --color-on-primary-container: #340080;
-  --color-surface-tint: #d0bcff;
-  --color-on-primary: #3c0091;
+  --color-on-primary-container: #ffffff;
+  --color-surface-tint: #0C3BEB;
+  --color-on-primary: #ffffff;
   --color-on-secondary: #303033;
   --color-on-error-container: #ffdad6;
-  --color-primary: #d0bcff;
+  --color-primary: #0C3BEB;
   --color-error: #ffb4ab;
   --color-surface-container-low: #1d1a23;
   --color-on-tertiary-container: #00311f;
@@ -26,14 +26,14 @@
   --color-secondary-fixed-dim: #c8c5ca;
   --color-inverse-on-surface: #322f39;
   --color-surface: #15121b;
-  --color-on-primary-fixed: #23005c;
+  --color-on-primary-fixed: #000f66;
   --color-on-tertiary-fixed-variant: #005236;
-  --color-primary-fixed-dim: #d0bcff;
+  --color-primary-fixed-dim: #0C3BEB;
   --color-outline: #958ea0;
   --color-on-tertiary-fixed: #002113;
   --color-secondary-container: #47464a;
   --color-on-error: #690005;
-  --color-primary-container: #a078ff;
+  --color-primary-container: #2b52ff;
   --color-surface-dim: #15121b;
   --color-on-surface-variant: #cbc3d7;
   --color-inverse-surface: #e7e0ed;
@@ -46,14 +46,14 @@
   --color-tertiary: #4edea3;
   --color-tertiary-container: #00a572;
   --color-tertiary-fixed-dim: #4edea3;
-  --color-inverse-primary: #6d3bd7;
+  --color-inverse-primary: #8da2ff;
   --color-error-container: #93000a;
-  --color-on-primary-fixed-variant: #5516be;
+  --color-on-primary-fixed-variant: #001eb3;
   --color-on-secondary-fixed-variant: #47464a;
   --color-on-secondary-container: #b6b4b8;
   --color-on-tertiary: #003824;
   --color-background: #15121b;
-  --color-primary-fixed: #e9ddff;
+  --color-primary-fixed: #dbe2ff;
   --color-surface-container-lowest: #0f0d15;
 
   --spacing-stack-md: 16px;
@@ -75,9 +75,9 @@
 .mesh-bg {
   background-color: #15121b;
   background-image: 
-    radial-gradient(at 40% 20%, hsla(267,100%,74%,0.15) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, hsla(280,100%,74%,0.15) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, hsla(267,100%,74%,0.15) 0px, transparent 50%);
+    radial-gradient(at 40% 20%, hsla(227,90%,60%,0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(227,90%,60%,0.12) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(227,90%,60%,0.12) 0px, transparent 50%);
   background-attachment: fixed;
 }
 
@@ -100,7 +100,7 @@
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #d0bcff 0%, #a078ff 100%);
+  background: linear-gradient(135deg, #8fa5ff 0%, #0c3beb 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
