@@ -172,25 +172,8 @@ export default function ChatPage() {
   const [activeTab, setActiveTab] = useState<"analyses" | "saved" | "favorites">("analyses");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentSubjectCode, setCurrentSubjectCode] = useState(matchedCode);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      sender: "user",
-      text: `Can you find the PYQs and key topics for ${currentSubjectInfo.name}?`
-    },
-    {
-      id: "2",
-      sender: "ai",
-      text: `I've analyzed the KTU examination database for **${currentSubjectInfo.name} (${currentSubjectCode})**. Historically, this course exhibits a **${currentSubjectInfo.recurrenceRate}% topic repetition rate** across core questions.
-
-Here is the parsed question paper vault and the high-priority exam topics. Ask me anything about specific sub-units, derivations, or problem-solving templates!`,
-      pdf: {
-        name: currentSubjectInfo.pdfs[0].name,
-        size: currentSubjectInfo.pdfs[0].size,
-        label: "PDF Document"
-      }
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const hasTriggered = useRef(false);
 
   const [inputVal, setInputVal] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -242,32 +225,90 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
     }
   }, [attachmentError]);
 
+  const triggerSubjectAnalysis = async (code: string, customPrompt?: string) => {
+    const subjectInfo = SUBJECT_DATABASE[code] || { name: code };
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      sender: "user",
+      text: customPrompt || `Can you find the PYQs and key topics for ${subjectInfo.name}?`
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsTyping(true);
+    setThinkingSteps(["Initiating web scraper for KTU papers..."]);
+
+    try {
+      const uiSteps = [
+        "Downloading KTU past year question papers...",
+        "Parsing PDFs and extracting questions...",
+        "Clustering similar questions via Vector DB...",
+        "Running TinyLlama to generate canonical forms...",
+        "Compiling final ranked PDF..."
+      ];
+      
+      let currentStep = 0;
+      const progressInterval = setInterval(() => {
+        if (currentStep < uiSteps.length) {
+          setThinkingSteps(prev => {
+            if (!prev.includes(uiSteps[currentStep])) {
+              return [...prev, uiSteps[currentStep]];
+            }
+            return prev;
+          });
+          currentStep++;
+        }
+      }, 3500);
+
+      const res = await fetch(`http://localhost:8000/api/generate-full-report/${code}`, {
+        method: "POST"
+      });
+      
+      clearInterval(progressInterval);
+      const data = await res.json();
+      
+      setIsTyping(false);
+      setThinkingSteps([]);
+
+      if (res.ok && data.status === "success") {
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          sender: "ai",
+          text: `I have successfully analyzed the past year papers for **${code}** using our TinyLlama pipeline. I have compiled the ranked, canonical questions into a PDF for you.`,
+          pdf: {
+            name: `${code}_ranked.pdf`,
+            size: "Generated Report",
+            label: "Download Ranked Questions"
+          }
+        };
+        setMessages(prev => [...prev, aiMessage]);
+      } else {
+        throw new Error(data.detail || "Unknown error from backend");
+      }
+    } catch (err) {
+      setIsTyping(false);
+      setThinkingSteps([]);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: "ai",
+        text: `Oops, something went wrong while talking to the KalamBot backend: ${err}. Make sure the FastAPI server is running!`
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+
+  useEffect(() => {
+    if (!isLanding && currentSubjectCode && messages.length === 0 && !hasTriggered.current) {
+      hasTriggered.current = true;
+      triggerSubjectAnalysis(currentSubjectCode);
+    }
+  }, [isLanding, currentSubjectCode, messages.length]);
+
   // Handle switching subjects from right panel or saved list
   const selectSubject = (code: string) => {
     setCurrentSubjectCode(code);
-    const subjectDetails = SUBJECT_DATABASE[code];
-    setMessages([
-      {
-        id: "1",
-        sender: "user",
-        text: `Analyze ${subjectDetails.name} exam papers.`
-      },
-      {
-        id: "2",
-        sender: "ai",
-        text: `Now viewing analysis for **${subjectDetails.name} (${code})**. I have populated the resources panel with the syllabus weights and exam papers.
-
-I can help you review:
-- **Part B high-mark derivations**
-- **Numeric question templates** (e.g. page replacement calculation steps)
-- **Unit-wise priority maps**`,
-        pdf: {
-          name: subjectDetails.pdfs[0].name,
-          size: subjectDetails.pdfs[0].size,
-          label: "PDF Document"
-        }
-      }
-    ]);
+    hasTriggered.current = true;
+    setMessages([]);
+    triggerSubjectAnalysis(code);
     setActiveTab("analyses");
     setSidebarOpen(false);
   };
@@ -376,78 +417,20 @@ I can help you review:
     };
   });
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedInput = inputVal.trim();
 
     if (!trimmedInput && attachedFiles.length === 0) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      sender: "user",
-      text: trimmedInput || `Attached ${attachedFiles.map(f => f.name).join(", ")}`,
-      attachments: attachedFiles.length > 0 ? attachedFiles : undefined
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    const userText = trimmedInput || `Attached ${attachedFiles.map(f => f.name).join(", ")}`;
+    
     setInputVal("");
     setAttachedFiles([]);
     setAttachmentError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
     
-    // Trigger Thinking Phase
-    setIsTyping(true);
-    setThinkingSteps([]);
-
-    const steps = [
-      "Querying the KTU Exam Archive database...",
-      `Cross-referencing syllabus for ${SUBJECT_DATABASE[currentSubjectCode].name}...`,
-      "Calculating historical weights & mark distributions...",
-      "Formulating priority advice..."
-    ];
-
-    let currentStep = 0;
-    const interval = setInterval(() => {
-      if (currentStep < steps.length) {
-        setThinkingSteps(prev => [...prev, steps[currentStep]]);
-        currentStep++;
-      } else {
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsTyping(false);
-          setThinkingSteps([]);
-          
-          // Generate realistic answer based on keywords
-          const userQuery = userMessage.text.toLowerCase();
-          let responseText = `I have examined your request regarding **${SUBJECT_DATABASE[currentSubjectCode].name}**. Based on past patterns, the questions in this area generally focus on high-yield sections.`;
-          
-          if (userQuery.includes("synchronization") || userQuery.includes("semaphore") || userQuery.includes("critical")) {
-            responseText = `For **Process Synchronization** (highly recurring at **95%** rate):
-1. **Classical Synchronization Problems**: Ensure you practice the Producer-Consumer problem and Readers-Writers problem using Semaphores. One of these is extremely common in Part B (14 Marks).
-2. **Peterson's Solution**: Be prepared to explain the hardware support for mutual exclusion (TestAndSet, Swap instructions).
-3. **Dining Philosophers**: Learn the deadlock-free semaphore implementation.`;
-          } else if (userQuery.includes("page") || userQuery.includes("replacement") || userQuery.includes("lru")) {
-            responseText = `For **Page Replacement Algorithms** (recurring at **88%** rate):
-- The exam frequently includes a 10 or 14-mark numerical problem asking you to trace **FIFO, LRU, and Optimal** page replacements for a given reference string (e.g., 7, 0, 1, 2, 0, 3...).
-- *Tip*: Always compute the page fault ratio accurately and show the frame transitions in a neat grid. Optimal replacement always provides the lowest page fault count.`;
-          } else if (userQuery.includes("pdf") || userQuery.includes("paper") || userQuery.includes("2023")) {
-            responseText = `I have updated the **PYQ Vault** panel on the right with the direct download links for the question papers. You can click on the download button to save the PDF. Let me know if you want me to solve any specific questions from the 2023 paper!`;
-          } else if (userQuery.includes("deadlock") || userQuery.includes("banker")) {
-            responseText = `For **Deadlocks** (recurring at **74%** rate):
-1. **Banker's Algorithm**: Expect a numerical question where you must prove safety and check if a specific process request can be granted immediately.
-2. **Resource Allocation Graph (RAG)**: Be ready to draw and explain how loops indicate deadlocks in single-instance resources.
-3. **Deadlock Prevention vs Avoidance**: Standard 6-mark theory question detailing the four necessary conditions (Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait).`;
-          }
-
-          const aiMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            sender: "ai",
-            text: responseText
-          };
-          setMessages(prev => [...prev, aiMessage]);
-        }, 800);
-      }
-    }, 1000);
+    await triggerSubjectAnalysis(currentSubjectCode, userText);
   };
 
   const handleDownloadPDF = (fileName: string) => {
