@@ -11,6 +11,8 @@ import {
   CircleUserRound,
   ArrowUpIcon,
   Paperclip,
+  FileText,
+  X,
   Code2,
   Palette,
   Layers,
@@ -70,15 +72,58 @@ export default function RuixenMoonChat({
   quickActions,
 }: RuixenMoonChatProps) {
   const [message, setMessage] = useState("");
+  const [attachedPdf, setAttachedPdf] = useState<{ name: string; size: string } | null>(null);
+  const [attachmentError, setAttachmentError] = useState("");
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 48,
     maxHeight: 150,
   });
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) {
+      return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+    }
+
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handlePdfSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setAttachmentError("");
+
+    if (!file) return;
+
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+    if (!isPdf) {
+      setAttachedPdf(null);
+      setAttachmentError("Only PDF files can be attached.");
+      e.target.value = "";
+      return;
+    }
+
+    setAttachedPdf({
+      name: file.name,
+      size: formatFileSize(file.size),
+    });
+  };
+
+  const clearAttachedPdf = () => {
+    setAttachedPdf(null);
+    setAttachmentError("");
+
+    if (pdfInputRef.current) {
+      pdfInputRef.current.value = "";
+    }
+  };
 
   const handleSend = () => {
-    if (!message.trim() || isSearching) return;
+    const trimmedMessage = message.trim();
+
+    if ((!trimmedMessage && !attachedPdf) || isSearching) return;
     if (onSearchSubmit) {
-      onSearchSubmit(message);
+      onSearchSubmit(trimmedMessage || `Attached ${attachedPdf!.name}`);
     }
   };
 
@@ -129,6 +174,33 @@ export default function RuixenMoonChat({
       {/* Input Box Section */}
       <div className="w-full max-w-3xl mb-[20vh] px-4 z-10">
         <div className="relative bg-black/60 backdrop-blur-md rounded-xl border border-neutral-700 shadow-2xl">
+          {(attachedPdf || attachmentError) && (
+            <div className="border-b border-neutral-800/70 px-3 py-2">
+              {attachedPdf ? (
+                <div className="max-w-full rounded-lg border border-blue-500/30 bg-neutral-950/80 px-3 py-2 flex items-center gap-3">
+                  <FileText className="h-4.5 w-4.5 text-blue-400 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-white truncate">{attachedPdf.name}</p>
+                    <p className="text-[11px] text-neutral-400">PDF Document - {attachedPdf.size}</p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearAttachedPdf}
+                    className="ml-auto h-7 w-7 shrink-0 rounded-full text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                    title="Remove PDF"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-red-400/30 bg-red-950/35 px-3 py-2 text-xs font-medium text-red-100">
+                  {attachmentError}
+                </div>
+              )}
+            </div>
+          )}
           <Textarea
             ref={textareaRef}
             value={message}
@@ -149,21 +221,31 @@ export default function RuixenMoonChat({
 
           {/* Footer Buttons */}
           <div className="flex items-center justify-between p-3 border-t border-neutral-800/50">
+            <input
+              ref={pdfInputRef}
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={handlePdfSelection}
+              className="hidden"
+            />
             <Button
               variant="ghost"
               size="icon"
+              type="button"
+              onClick={() => pdfInputRef.current?.click()}
               className="text-white hover:bg-neutral-800"
+              title="Attach PDF"
             >
               <Paperclip className="w-4 h-4" />
             </Button>
 
             <div className="flex items-center gap-2">
               <Button
-                disabled={!message.trim() || isSearching}
+                disabled={(!message.trim() && !attachedPdf) || isSearching}
                 onClick={handleSend}
                 className={cn(
                   "flex items-center gap-1 px-3 py-2 rounded-lg transition-colors cursor-pointer",
-                  (!message.trim() || isSearching)
+                  ((!message.trim() && !attachedPdf) || isSearching)
                     ? "bg-neutral-700 text-neutral-400 cursor-not-allowed"
                     : "bg-white text-black hover:bg-neutral-200"
                 )}
