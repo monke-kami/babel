@@ -37,6 +37,7 @@ interface Message {
   sender: "user" | "ai";
   text: string;
   pdf?: AttachmentMeta;
+  attachments?: AttachmentMeta[];
   isSaved?: boolean;
 }
 
@@ -162,8 +163,9 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   const [isTyping, setIsTyping] = useState(false);
   const [thinkingSteps, setThinkingSteps] = useState<string[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-  const [attachedFile, setAttachedFile] = useState<Message["pdf"] | null>(null);
+  const [attachedFiles, setAttachedFiles] = useState<AttachmentMeta[]>([]);
   const [attachmentError, setAttachmentError] = useState("");
+  const [isErrorFading, setIsErrorFading] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
   
   // Download simulation state map
@@ -189,6 +191,23 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping, thinkingSteps]);
+
+  useEffect(() => {
+    if (attachmentError) {
+      setIsErrorFading(false);
+      const fadeTimer = setTimeout(() => {
+        setIsErrorFading(true);
+      }, 2500);
+      const removeTimer = setTimeout(() => {
+        setAttachmentError("");
+        setIsErrorFading(false);
+      }, 3000);
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(removeTimer);
+      };
+    }
+  }, [attachmentError]);
 
   // Handle switching subjects from right panel or saved list
   const selectSubject = (code: string) => {
@@ -221,52 +240,43 @@ I can help you review:
     setSidebarOpen(false);
   };
 
-  const attachFile = (file?: File | null) => {
+  const attachAllowedFiles = (files?: FileList | File[] | null) => {
     setAttachmentError("");
 
-    if (!file) return false;
+    const fileList = Array.from(files ?? []);
+    if (fileList.length === 0) return false;
 
-    const attachment = createAttachmentMeta(file);
+    const allowedFiles = fileList.map(createAttachmentMeta).filter(Boolean) as AttachmentMeta[];
 
-    if (!attachment) {
-      setAttachedFile(null);
+    if (allowedFiles.length === 0) {
       setAttachmentError(ATTACHMENT_ERROR_MESSAGE);
       return false;
     }
 
-    setAttachedFile(attachment);
+    const newUniqueFiles = allowedFiles.filter(
+      newFile => !attachedFiles.some(existing => existing.name === newFile.name)
+    );
+
+    if (newUniqueFiles.length < allowedFiles.length) {
+      setAttachmentError("File already uploaded.");
+      if (newUniqueFiles.length === 0) return false;
+    }
+
+    setAttachedFiles(prev => [...prev, ...newUniqueFiles]);
     return true;
   };
 
-  const attachFirstAllowedFile = (files?: FileList | File[] | null) => {
-    const fileList = Array.from(files ?? []);
-
-    if (fileList.length === 0) return false;
-
-    const allowedFile = fileList.find(file => createAttachmentMeta(file));
-
-    if (!allowedFile) {
-      setAttachedFile(null);
-      setAttachmentError(ATTACHMENT_ERROR_MESSAGE);
-      return false;
-    }
-
-    return attachFile(allowedFile);
-  };
-
   const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const didAttach = attachFirstAllowedFile(e.target.files);
+    const didAttach = attachAllowedFiles(e.target.files);
 
     if (!didAttach) {
       e.target.value = "";
     }
   };
 
-  const clearAttachedFile = () => {
-    setAttachedFile(null);
-    setAttachmentError("");
-
-    if (fileInputRef.current) {
+  const removeAttachedFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+    if (attachedFiles.length === 1 && fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
@@ -311,7 +321,7 @@ I can help you review:
     e.preventDefault();
     dragDepthRef.current = 0;
     setIsDragActive(false);
-    attachFirstAllowedFile(e.dataTransfer.files);
+    attachAllowedFiles(e.dataTransfer.files);
   };
 
   useEffect(() => {
@@ -324,7 +334,7 @@ I can help you review:
       if (pastedFiles.length === 0) return;
 
       e.preventDefault();
-      attachFirstAllowedFile(pastedFiles);
+      attachAllowedFiles(pastedFiles);
     };
 
     window.addEventListener("paste", handleClipboardPaste);
@@ -338,18 +348,20 @@ I can help you review:
     e.preventDefault();
     const trimmedInput = inputVal.trim();
 
-    if (!trimmedInput && !attachedFile) return;
+    if (!trimmedInput && attachedFiles.length === 0) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: "user",
-      text: trimmedInput || `Attached ${attachedFile!.name}`,
-      pdf: attachedFile ?? undefined
+      text: trimmedInput || `Attached ${attachedFiles.map(f => f.name).join(", ")}`,
+      attachments: attachedFiles.length > 0 ? attachedFiles : undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputVal("");
-    clearAttachedFile();
+    setAttachedFiles([]);
+    setAttachmentError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
     
     // Trigger Thinking Phase
     setIsTyping(true);
@@ -663,6 +675,21 @@ I can help you review:
                                 </div>
                               </div>
                             )}
+                            {msg.attachments && msg.attachments.length > 0 && (
+                              <div className="flex flex-col gap-2 mt-1">
+                                {msg.attachments.map((file, idx) => (
+                                  <div key={idx} className="bg-[#100d17]/70 border border-white/5 rounded-xl p-3 flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                                      {getAttachmentIcon(file.label)}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <h4 className="text-sm font-semibold text-white truncate">{file.name}</h4>
+                                      <p className="text-xs text-on-surface-variant mt-0.5 font-medium">{file.label ?? "PDF Document"} - {file.size}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="bg-[#171421]/60 border border-white/5 text-on-surface p-4 rounded-2xl rounded-tl-sm shadow-md backdrop-blur-sm flex flex-col gap-3">
@@ -764,26 +791,29 @@ I can help you review:
                 {/* Fixed Input Form */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface/95 to-transparent pt-6 pb-9 px-6 md:px-8 z-20">
                   <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto w-full relative">
-                    {(attachedFile || attachmentError) && (
-                      <div className="mb-2 flex justify-start">
-                        {attachedFile ? (
-                          <div className="max-w-full bg-[#1c1924] border border-primary/25 rounded-xl px-3 py-2 flex items-center gap-3 shadow-lg shadow-black/20">
-                            {getAttachmentIcon(attachedFile.label, "h-4.5 w-4.5 text-primary shrink-0")}
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-white truncate">{attachedFile.name}</p>
-                              <p className="text-[11px] text-on-surface-variant">{attachedFile.label} - {attachedFile.size}</p>
+                    {(attachedFiles.length > 0 || attachmentError) && (
+                      <div className="mb-2 flex gap-2 justify-start max-w-full overflow-x-auto [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 pb-1">
+                        {attachedFiles.map((file, idx) => (
+                          <div key={idx} className="shrink-0 w-48 bg-[#1c1924] border border-primary/25 rounded-xl px-2.5 py-1.5 flex items-center gap-2.5 shadow-lg shadow-black/20">
+                            <div className="shrink-0 bg-white/5 p-1.5 rounded-lg">
+                              {getAttachmentIcon(file.label, "h-4 w-4 text-primary")}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-semibold text-white truncate">{file.name}</p>
+                              <p className="text-[10px] text-on-surface-variant truncate">{file.size}</p>
                             </div>
                             <button
                               type="button"
-                              onClick={clearAttachedFile}
-                              className="p-1 rounded-full text-on-surface-variant hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                              onClick={() => removeAttachedFile(idx)}
+                              className="h-6 w-6 flex items-center justify-center rounded-full text-on-surface-variant hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer ml-auto"
                               title="Remove attachment"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
                           </div>
-                        ) : (
-                          <div className="bg-error-container/30 border border-error/30 rounded-xl px-3 py-2 text-xs font-medium text-on-error-container">
+                        ))}
+                        {attachmentError && (
+                          <div className={`shrink-0 bg-error-container/30 border border-error/30 rounded-xl px-3 py-2 text-xs font-medium text-on-error-container flex items-center transition-opacity duration-500 ${isErrorFading ? "opacity-0" : "opacity-100"}`}>
                             {attachmentError}
                           </div>
                         )}
@@ -793,6 +823,7 @@ I can help you review:
                       <input
                         ref={fileInputRef}
                         type="file"
+                        multiple
                         accept={ATTACHMENT_ACCEPT}
                         onChange={handleFileSelection}
                         className="hidden"
@@ -817,7 +848,7 @@ I can help you review:
                       
                       <button 
                         type="submit"
-                        disabled={(!inputVal.trim() && !attachedFile) || isTyping}
+                        disabled={(!inputVal.trim() && attachedFiles.length === 0) || isTyping}
                         className="bg-primary text-white font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 active:scale-95 disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 ml-1 cursor-pointer shadow-md shadow-primary/25"
                       >
                         <span>Ask AI</span>
