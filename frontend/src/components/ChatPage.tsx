@@ -430,13 +430,13 @@ I can help you review:
             </button>
             {activeTab === "analyses" ? (
               <div>
-                <h2 className="text-base md:text-lg font-bold text-white flex items-center gap-2">
+                <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
                   <span>{currentSubjectInfo.name}</span>
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/20 font-mono">
+                  <span className="text-xs md:text-sm px-2.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/20 font-mono">
                     {currentSubjectCode}
                   </span>
                 </h2>
-                <p className="text-[11px] text-on-surface-variant flex items-center gap-1.5">
+                <p className="text-xs md:text-sm text-on-surface-variant flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                   Exam predictive index loaded
                 </p>
@@ -499,21 +499,21 @@ I can help you review:
                       {/* Chat Bubble Container */}
                       <div className="relative max-w-[85%]">
                         {msg.sender === "user" ? (
-                          <div className="bg-[#1c1c28] border border-white/5 text-on-surface px-4 py-3 rounded-2xl rounded-tr-sm shadow-md">
-                            <p className="text-[13.5px] leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                          <div className="bg-[#1c1c28] border border-white/5 text-on-surface px-4.5 py-3 rounded-2xl rounded-tr-sm shadow-md">
+                            <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                           </div>
                         ) : (
                           <div className="bg-[#171421]/60 border border-white/5 text-on-surface p-4 rounded-2xl rounded-tl-sm shadow-md backdrop-blur-sm flex flex-col gap-3">
-                            <p className="text-[13.5px] leading-relaxed text-on-surface/90 whitespace-pre-wrap font-sans">{msg.text}</p>
+                            <p className="text-sm md:text-base leading-relaxed text-on-surface/90 whitespace-pre-wrap font-sans">{msg.text}</p>
                             
                             {msg.pdf && (
-                              <div className="bg-[#100d17] border border-white/5 rounded-xl p-3 flex items-center gap-3.5 hover:border-primary/45 transition-all duration-200 group/pdf cursor-pointer">
+                              <div className="bg-[#100d17] border border-white/5 rounded-xl p-3.5 flex items-center gap-3.5 hover:border-primary/45 transition-all duration-200 group/pdf cursor-pointer">
                                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center shrink-0 group-hover/pdf:bg-primary/15 transition-colors">
                                   <FileText className="h-5 w-5 text-on-surface-variant group-hover/pdf:text-primary transition-colors" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="text-xs font-semibold text-white truncate">{msg.pdf.name}</h4>
-                                  <p className="text-[10px] text-on-surface-variant mt-0.5 font-medium">PDF Document • {msg.pdf.size}</p>
+                                  <h4 className="text-sm font-semibold text-white truncate">{msg.pdf.name}</h4>
+                                  <p className="text-xs text-on-surface-variant mt-0.5 font-medium">PDF Document • {msg.pdf.size}</p>
                                 </div>
                                 <button 
                                   onClick={(e) => {
@@ -573,19 +573,19 @@ I can help you review:
                         </span>
                       </div>
                       
-                      <div className="bg-[#171421]/60 border border-white/5 p-4 rounded-2xl rounded-tl-sm w-[80%] max-w-sm flex flex-col gap-2.5 backdrop-blur-sm">
+                      <div className="bg-[#171421]/60 border border-white/5 p-4.5 rounded-2xl rounded-tl-sm w-[85%] max-w-md flex flex-col gap-2.5 backdrop-blur-sm">
                         <div className="flex items-center gap-2 mb-1">
                           <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                          <span className="text-xs font-semibold text-white">Generating predictive report...</span>
+                          <span className="text-sm font-semibold text-white">Generating predictive report...</span>
                         </div>
                         <div className="space-y-2">
                           {thinkingSteps.map((step, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-[11px] text-on-surface-variant animate-fadeIn">
+                            <div key={idx} className="flex items-center gap-2 text-xs md:text-sm text-on-surface-variant animate-fadeIn">
                               <Check className="h-3.5 w-3.5 text-primary shrink-0" />
                               <span className="font-mono">{step}</span>
                             </div>
                           ))}
-                          <div className="flex items-center gap-2 text-[11px] text-on-surface-variant/40">
+                          <div className="flex items-center gap-2 text-xs md:text-sm text-on-surface-variant/40">
                             <div className="h-3.5 w-3.5 flex items-center justify-center shrink-0">
                               <div className="h-2 w-2 border border-primary border-t-transparent rounded-full animate-spin" />
                             </div>
@@ -617,7 +617,7 @@ I can help you review:
                         value={inputVal}
                         onChange={(e) => setInputVal(e.target.value)}
                         autoComplete="off"
-                        className="flex-1 bg-transparent border-none focus:outline-none text-on-surface placeholder:text-on-surface-variant/40 text-[13.5px] px-3 font-sans" 
+                        className="flex-1 bg-transparent border-none focus:outline-none text-on-surface placeholder:text-on-surface-variant/40 text-sm md:text-base px-3 font-sans" 
                         placeholder={`Ask anything about ${currentSubjectInfo.name} exams...`}
                       />
                       
@@ -643,7 +643,7 @@ I can help you review:
                   <div className="bg-[#1c1924] border border-white/5 rounded-2xl p-5 flex flex-col items-center text-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
                     
-                    <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-4 flex items-center gap-1.5">
                       <TrendingUp className="h-3.5 w-3.5 text-primary" /> Topic Recurrence
                     </span>
 
@@ -668,18 +668,18 @@ I can help you review:
                       </svg>
                       <div className="absolute flex flex-col items-center justify-center">
                         <span className="text-3xl font-extrabold text-white font-mono">{currentSubjectInfo.recurrenceRate}%</span>
-                        <span className="text-[9px] text-on-surface-variant font-semibold uppercase tracking-wider">Predictive Index</span>
+                        <span className="text-[10px] md:text-xs text-on-surface-variant font-semibold uppercase tracking-wider">Predictive Index</span>
                       </div>
                     </div>
 
-                    <p className="text-xs text-on-surface-variant max-w-[200px] leading-relaxed">
+                    <p className="text-sm text-on-surface-variant max-w-[200px] leading-relaxed">
                       Questions have high repeat patterns in regular schedules.
                     </p>
                   </div>
 
                   {/* PYQ Downloads List */}
                   <div>
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-3 select-none flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 select-none flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-primary" /> Past Year Papers
                     </h3>
                     <div className="space-y-2">
@@ -687,15 +687,15 @@ I can help you review:
                         <div 
                           key={pdf.name}
                           onClick={() => handleDownloadPDF(pdf.name)}
-                          className="flex items-center justify-between p-3 rounded-xl bg-[#1c1924] border border-white/5 hover:border-primary/40 hover:bg-[#23202e] transition-all cursor-pointer group"
+                          className="flex items-center justify-between p-3.5 rounded-xl bg-[#1c1924] border border-white/5 hover:border-primary/40 hover:bg-[#23202e] transition-all cursor-pointer group"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors shrink-0">
                               <FileText className="h-4 w-4 text-on-surface-variant group-hover:text-primary transition-colors" />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="text-xs font-bold text-white truncate group-hover:text-primary transition-colors">{pdf.year} Paper</h4>
-                              <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">{pdf.size}</p>
+                              <h4 className="text-sm font-bold text-white truncate group-hover:text-primary transition-colors">{pdf.year} Paper</h4>
+                              <p className="text-xs text-on-surface-variant font-medium mt-0.5">{pdf.size}</p>
                             </div>
                           </div>
                           <button 
@@ -717,7 +717,7 @@ I can help you review:
 
                   {/* Hot Focus Areas */}
                   <div>
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-3 select-none flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 select-none flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-primary" /> High Priority Focus
                     </h3>
                     <div className="space-y-3">
@@ -727,9 +727,9 @@ I can help you review:
                           onClick={() => {
                             setInputVal(`Tell me about exam questions for: ${topic.name}`);
                           }}
-                          className="bg-[#1c1924] border border-white/5 hover:border-primary/30 p-3 rounded-xl hover:bg-[#23202e] cursor-pointer transition-all group"
+                          className="bg-[#1c1924] border border-white/5 hover:border-primary/30 p-3.5 rounded-xl hover:bg-[#23202e] cursor-pointer transition-all group"
                         >
-                          <div className="flex justify-between items-center text-xs font-semibold mb-1">
+                          <div className="flex justify-between items-center text-sm font-semibold mb-1">
                             <span className="text-white truncate group-hover:text-primary transition-colors pr-2">{topic.name}</span>
                             <span className="text-primary font-mono shrink-0">{topic.weight}%</span>
                           </div>
@@ -742,7 +742,7 @@ I can help you review:
                             />
                           </div>
 
-                          <p className="text-[10px] text-on-surface-variant/80 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-on-surface-variant/80 line-clamp-2 leading-relaxed">
                             {topic.desc}
                           </p>
                         </div>
