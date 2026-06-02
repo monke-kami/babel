@@ -155,6 +155,8 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   const [isTyping, setIsTyping] = useState(false);
   const [thinkingSteps, setThinkingSteps] = useState<string[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [attachedPdf, setAttachedPdf] = useState<Message["pdf"] | null>(null);
+  const [attachmentError, setAttachmentError] = useState("");
   
   // Download simulation state map
   const [downloadStates, setDownloadStates] = useState<Record<string, "idle" | "loading" | "done">>({});
@@ -169,6 +171,7 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   const [isSubjectBookmarked, setIsSubjectBookmarked] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -208,18 +211,60 @@ I can help you review:
     setSidebarOpen(false);
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024 * 1024) {
+      return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+    }
+
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handlePdfSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setAttachmentError("");
+
+    if (!file) return;
+
+    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+    if (!isPdf) {
+      setAttachedPdf(null);
+      setAttachmentError("Only PDF files can be attached.");
+      e.target.value = "";
+      return;
+    }
+
+    setAttachedPdf({
+      name: file.name,
+      size: formatFileSize(file.size)
+    });
+  };
+
+  const clearAttachedPdf = () => {
+    setAttachedPdf(null);
+    setAttachmentError("");
+
+    if (pdfInputRef.current) {
+      pdfInputRef.current.value = "";
+    }
+  };
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputVal.trim()) return;
+    const trimmedInput = inputVal.trim();
+
+    if (!trimmedInput && !attachedPdf) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: "user",
-      text: inputVal
+      text: trimmedInput || `Attached ${attachedPdf!.name}`,
+      pdf: attachedPdf ?? undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputVal("");
+    clearAttachedPdf();
     
     // Trigger Thinking Phase
     setIsTyping(true);
@@ -500,8 +545,19 @@ I can help you review:
                       {/* Chat Bubble Container */}
                       <div className="relative max-w-[85%]">
                         {msg.sender === "user" ? (
-                          <div className="bg-[#1c1c28] border border-white/5 text-on-surface px-4.5 py-3 rounded-2xl rounded-tr-sm shadow-md">
+                          <div className="bg-[#1c1c28] border border-white/5 text-on-surface px-4.5 py-3 rounded-2xl rounded-tr-sm shadow-md flex flex-col gap-3">
                             <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                            {msg.pdf && (
+                              <div className="bg-[#100d17]/70 border border-white/5 rounded-xl p-3 flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                                  <FileText className="h-4.5 w-4.5 text-primary" />
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="text-sm font-semibold text-white truncate">{msg.pdf.name}</h4>
+                                  <p className="text-xs text-on-surface-variant mt-0.5 font-medium">PDF Document - {msg.pdf.size}</p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div className="bg-[#171421]/60 border border-white/5 text-on-surface p-4 rounded-2xl rounded-tl-sm shadow-md backdrop-blur-sm flex flex-col gap-3">
@@ -603,12 +659,44 @@ I can help you review:
                 {/* Fixed Input Form */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface/95 to-transparent pt-6 pb-9 px-6 md:px-8 z-20">
                   <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto w-full relative">
+                    {(attachedPdf || attachmentError) && (
+                      <div className="mb-2 flex justify-start">
+                        {attachedPdf ? (
+                          <div className="max-w-full bg-[#1c1924] border border-primary/25 rounded-xl px-3 py-2 flex items-center gap-3 shadow-lg shadow-black/20">
+                            <FileText className="h-4.5 w-4.5 text-primary shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-white truncate">{attachedPdf.name}</p>
+                              <p className="text-[11px] text-on-surface-variant">PDF Document - {attachedPdf.size}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={clearAttachedPdf}
+                              className="p-1 rounded-full text-on-surface-variant hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                              title="Remove PDF"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="bg-error-container/30 border border-error/30 rounded-xl px-3 py-2 text-xs font-medium text-on-error-container">
+                            {attachmentError}
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div className="bg-[#211e27] rounded-full border border-white/10 flex items-center p-2.5 shadow-lg shadow-black/30 backdrop-blur-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-all">
+                      <input
+                        ref={pdfInputRef}
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        onChange={handlePdfSelection}
+                        className="hidden"
+                      />
                       <button 
                         type="button"
-                        onClick={() => alert("File upload supports PDF syllabus or student schedules.")}
+                        onClick={() => pdfInputRef.current?.click()}
                         className="p-3 text-on-surface-variant hover:text-on-surface rounded-full hover:bg-white/5 transition-all shrink-0 cursor-pointer"
-                        title="Upload syllabus"
+                        title="Attach PDF"
                       >
                         <Paperclip className="h-5 w-5" />
                       </button>
@@ -624,7 +712,7 @@ I can help you review:
                       
                       <button 
                         type="submit"
-                        disabled={!inputVal.trim() || isTyping}
+                        disabled={(!inputVal.trim() && !attachedPdf) || isTyping}
                         className="bg-primary text-white font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 active:scale-95 disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 ml-1 cursor-pointer shadow-md shadow-primary/25"
                       >
                         <span>Ask AI</span>
