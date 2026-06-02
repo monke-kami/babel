@@ -491,11 +491,11 @@ I can help you review:
       }`}>
         <div className="px-6 mb-8 flex justify-between items-center">
           <div>
-            <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-on-surface select-none">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center shadow-md shadow-primary/25">
-                <Bookmark className="h-4.5 w-4.5 text-on-primary-container" />
+            <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-on-surface/90 select-none">
+              <div className="h-8 w-8 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center shadow-sm shadow-black/20">
+                <Bookmark className="h-4.5 w-4.5 text-primary/75" />
               </div>
-              <span className="text-white">KalamBot</span>
+              <span className="text-white/90">KalamBot</span>
             </div>
             <p className="text-[10px] text-on-surface-variant font-medium tracking-wide mt-1 select-none">
               Academic Dashboard

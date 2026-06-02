@@ -32,9 +32,9 @@ export default function LandingPage() {
     <div className="relative w-full h-screen bg-black overflow-hidden font-sans">
       {/* Top Header */}
       <nav className="absolute top-0 left-0 w-full z-50 flex items-center px-6 md:px-16 h-20 bg-transparent">
-        <div className="flex items-center gap-2 text-xl md:text-2xl font-bold tracking-tight text-white select-none">
-          <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-400 flex items-center justify-center shadow-md shadow-blue-500/25">
-            <Bookmark className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-2 text-xl md:text-2xl font-bold tracking-tight text-neutral-100/90 select-none">
+          <div className="h-9 w-9 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center shadow-sm shadow-black/20">
+            <Bookmark className="h-5 w-5 text-blue-200/80" />
           </div>
           <span>KalamBot</span>
         </div>
