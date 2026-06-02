@@ -6,26 +6,23 @@ import {
   Star, 
   Paperclip, 
   FileUp,
-  Send, 
   Download, 
   FileText, 
   ImageIcon,
   Bot, 
   Menu, 
   X,
-  ArrowLeft,
   Copy,
   Check,
-  TrendingUp,
   BookOpen,
-  Calendar,
   Sparkles,
   ArrowUpRight,
-  BookmarkCheck,
   ArrowUp,
   Database,
   Globe,
-  Lightbulb
+  Lightbulb,
+  ChevronDown,
+  Share
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
@@ -208,13 +205,13 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   const [downloadStates, setDownloadStates] = useState<Record<string, "idle" | "loading" | "done">>({});
 
   // Saved Subjects state
-  const [savedSubjects, setSavedSubjects] = useState<SavedSubject[]>([
+  const [savedSubjects] = useState<SavedSubject[]>([
     { code: "CST302", name: "Operating Systems", recurrenceRate: 87, lastAnalyzed: "10 mins ago", color: "from-blue-600 to-indigo-600", topicsCount: 5 },
     { code: "CST304", name: "Database Management Systems", recurrenceRate: 82, lastAnalyzed: "1 hour ago", color: "from-indigo-600 to-purple-600", topicsCount: 5 },
     { code: "CST306", name: "Computer Networks", recurrenceRate: 79, lastAnalyzed: "Yesterday", color: "from-blue-500 to-cyan-600", topicsCount: 5 }
   ]);
   const [savedFilter, setSavedFilter] = useState("");
-  const [isSubjectBookmarked, setIsSubjectBookmarked] = useState(true);
+
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -248,7 +245,6 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   // Handle switching subjects from right panel or saved list
   const selectSubject = (code: string) => {
     setCurrentSubjectCode(code);
-    setIsSubjectBookmarked(savedSubjects.some(s => s.code === code));
     const subjectDetails = SUBJECT_DATABASE[code];
     setMessages([
       {
@@ -480,26 +476,6 @@ I can help you review:
     );
   };
 
-  const toggleSubjectBookmark = () => {
-    if (isSubjectBookmarked) {
-      setSavedSubjects(prev => prev.filter(s => s.code !== currentSubjectCode));
-    } else {
-      const info = SUBJECT_DATABASE[currentSubjectCode];
-      setSavedSubjects(prev => [
-        ...prev,
-        {
-          code: currentSubjectCode,
-          name: info.name,
-          recurrenceRate: info.recurrenceRate,
-          lastAnalyzed: "Just now",
-          color: "from-blue-600 to-indigo-600",
-          topicsCount: info.topics.length
-        }
-      ]);
-    }
-    setIsSubjectBookmarked(!isSubjectBookmarked);
-  };
-
   // Filtered list of saved subjects
   const filteredSaved = savedSubjects.filter(
     s => s.code.toLowerCase().includes(savedFilter.toLowerCase()) || 
@@ -524,7 +500,7 @@ I can help you review:
           backgroundAttachment: "fixed",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-[#0d0a14]/60 to-[#0a070f] z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none" />
 
       {/* ═══ Landing Hero Overlay ═══ */}
       <div 
@@ -623,85 +599,75 @@ I can help you review:
       )}
 
       {/* SideNavBar (Desktop/Drawer) */}
-      <aside className={`flex flex-col h-full py-6 bg-surface-container-low/95 backdrop-blur-xl border-r border-white/5 shrink-0 z-40 fixed md:sticky top-0 w-64 ${
+      <aside className={`flex flex-col h-full py-4 bg-[#0a0a0a] border-r border-white/10 shrink-0 z-40 fixed md:sticky top-0 w-[260px] ${
         isLanding 
           ? "-translate-x-full" 
           : (sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0")
       }`}>
-        <div className="px-6 mb-8 flex justify-between items-center">
-          <div>
-            <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-on-surface/90 select-none">
-              <div className="h-8 w-8 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center shadow-sm shadow-black/20">
-                <Bookmark className="h-4.5 w-4.5 text-primary/75" />
-              </div>
-              <span className="text-white/90">KalamBot</span>
+        <div className="px-3 mb-4 flex justify-between items-center">
+          <button 
+            onClick={() => navigate("/")}
+            className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-white hover:bg-white/5 transition-all cursor-pointer font-medium"
+          >
+            <div className="h-7 w-7 rounded-full bg-white flex items-center justify-center">
+              <span className="text-black text-lg pb-0.5">+</span>
             </div>
-            <p className="text-[10px] text-on-surface-variant font-medium tracking-wide mt-1 select-none">
-              Academic Dashboard
-            </p>
-          </div>
+            <span className="text-sm">New Search</span>
+          </button>
           <button 
             onClick={() => setSidebarOpen(false)}
-            className="md:hidden text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-white/5 transition-colors"
+            className="md:hidden text-neutral-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex-grow overflow-y-auto px-3 space-y-1">
+        <div className="flex-grow overflow-y-auto px-3 space-y-0.5">
+          <p className="text-xs font-semibold text-neutral-500 px-3 py-2 mt-2">Library</p>
           <button 
             onClick={() => { setActiveTab("analyses"); setSidebarOpen(false); }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
               activeTab === "analyses"
-                ? "bg-primary-container/20 border border-primary/20 text-white font-semibold"
-                : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
+                ? "bg-white/10 text-white font-medium"
+                : "text-neutral-300 hover:bg-white/5 hover:text-white"
             }`}
           >
-            <History className="h-4.5 w-4.5" />
+            <History className="h-4 w-4" />
             <span className="text-sm">Recent Analyses</span>
           </button>
           <button 
             onClick={() => { setActiveTab("saved"); setSidebarOpen(false); }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
               activeTab === "saved"
-                ? "bg-primary-container/20 border border-primary/20 text-white font-semibold"
-                : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
+                ? "bg-white/10 text-white font-medium"
+                : "text-neutral-300 hover:bg-white/5 hover:text-white"
             }`}
           >
-            <BookOpen className="h-4.5 w-4.5" />
+            <BookOpen className="h-4 w-4" />
             <span className="text-sm">Saved Subjects</span>
-            {savedSubjects.length > 0 && (
-              <span className="ml-auto text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-bold">
-                {savedSubjects.length}
-              </span>
-            )}
           </button>
           <button 
             onClick={() => { setActiveTab("favorites"); setSidebarOpen(false); }}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
               activeTab === "favorites"
-                ? "bg-primary-container/20 border border-primary/20 text-white font-semibold"
-                : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
+                ? "bg-white/10 text-white font-medium"
+                : "text-neutral-300 hover:bg-white/5 hover:text-white"
             }`}
           >
-            <Star className="h-4.5 w-4.5" />
+            <Star className="h-4 w-4" />
             <span className="text-sm">Favorites</span>
-            {starredMessages.length > 0 && (
-              <span className="ml-auto text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">
-                {starredMessages.length}
-              </span>
-            )}
           </button>
         </div>
 
-        <div className="px-3 mt-auto border-t border-white/5 pt-4">
-          <button 
-            onClick={() => navigate("/")}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all cursor-pointer"
-          >
-            <ArrowLeft className="h-4.5 w-4.5" />
-            <span className="text-sm">Back to Home</span>
+        <div className="px-3 mt-auto pt-4">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-white transition-all cursor-pointer">
+            <div className="h-7 w-7 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
+              KB
+            </div>
+            <div className="text-sm font-medium text-left">
+              KalamBot Account
+            </div>
           </button>         
         </div>
       </aside>
@@ -712,50 +678,25 @@ I can help you review:
       }`}>
         
         {/* Header */}
-        <header className="flex items-center justify-between px-6 md:px-8 h-18 border-b border-white/5 bg-surface/50 backdrop-blur-md sticky top-0 z-30">
+        <header className="flex items-center justify-between px-4 md:px-6 h-14 bg-transparent sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden text-on-surface-variant hover:text-on-surface p-1.5 rounded-lg hover:bg-white/5 transition-colors mr-1"
+              className="md:hidden text-neutral-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition-colors mr-1"
             >
               <Menu className="h-5 w-5" />
             </button>
-            {activeTab === "analyses" ? (
-              <div>
-                <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-                  <span>{currentSubjectInfo.name}</span>
-                  <span className="text-xs md:text-sm px-2.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/20 font-mono">
-                    {currentSubjectCode}
-                  </span>
-                </h2>
-                <p className="text-xs md:text-sm text-on-surface-variant flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                  Exam predictive index loaded
-                </p>
-              </div>
-            ) : (
-              <h2 className="text-lg font-bold text-white capitalize">
-                {activeTab === "saved" ? "Saved Subjects" : "Bookmarked Insights"}
-              </h2>
-            )}
+            <button className="flex items-center gap-2 text-lg font-bold text-white hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+              <span>KalamBot AI</span>
+              <ChevronDown className="h-4 w-4 text-neutral-400 ml-1" />
+            </button>
           </div>
 
-          {activeTab === "analyses" && (
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={toggleSubjectBookmark}
-                className={`p-2 rounded-xl border border-white/5 transition-all cursor-pointer flex items-center gap-2 text-xs font-semibold ${
-                  isSubjectBookmarked 
-                    ? "bg-primary/20 border-primary/30 text-white" 
-                    : "bg-[#1c1924] text-on-surface-variant hover:text-on-surface hover:bg-[#252130]"
-                }`}
-                title={isSubjectBookmarked ? "Remove from dashboard" : "Pin to dashboard"}
-              >
-                {isSubjectBookmarked ? <BookmarkCheck className="h-4.5 w-4.5 text-primary" /> : <Bookmark className="h-4.5 w-4.5" />}
-                <span className="hidden sm:inline">{isSubjectBookmarked ? "Saved" : "Save Subject"}</span>
-              </button>
-            </div>
-          )}
+          <div className="flex items-center">
+            <button className="p-2 rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-colors cursor-pointer" title="Share Chat">
+              <Share className="h-5 w-5" />
+            </button>
+          </div>
         </header>
 
         {/* Tab Canvas panels */}
@@ -774,46 +715,41 @@ I can help you review:
                   {messages.map((msg) => (
                     <div 
                       key={msg.id}
-                      className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"} w-full group`}
+                      className={`flex gap-4 w-full ${msg.sender === "user" ? "justify-end" : "justify-start"} group`}
                     >
-                      {/* Meta header for AI response */}
+                      {/* AI Avatar */}
                       {msg.sender === "ai" && (
-                        <div className="flex items-center gap-2 mb-1.5 select-none">
-                          <div className="w-6.5 h-6.5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                            <Bot className="h-3.5 w-3.5 text-primary" />
-                          </div>
-                          <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
-                            KalamBot AI
-                          </span>
+                        <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center shrink-0 mt-0.5 bg-white/5">
+                          <Bot className="h-4 w-4 text-white" />
                         </div>
                       )}
 
                       {/* Chat Bubble Container */}
-                      <div className="relative max-w-[85%]">
+                      <div className={`relative ${msg.sender === "user" ? "max-w-[70%]" : "max-w-[85%] flex-1"}`}>
                         {msg.sender === "user" ? (
-                          <div className="bg-[#1c1c28] border border-white/5 text-on-surface px-4.5 py-3 rounded-2xl rounded-tr-sm shadow-md flex flex-col gap-3">
-                            <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                          <div className="bg-[#2f2f2f] text-white px-5 py-3 rounded-3xl rounded-tr-md flex flex-col gap-3">
+                            <p className="text-base leading-relaxed whitespace-pre-wrap">{msg.text}</p>
                             {msg.pdf && (
-                              <div className="bg-[#100d17]/70 border border-white/5 rounded-xl p-3 flex items-center gap-3">
+                              <div className="bg-black/30 border border-white/5 rounded-xl p-3 flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
                                   {getAttachmentIcon(msg.pdf.label)}
                                 </div>
                                 <div className="min-w-0">
                                   <h4 className="text-sm font-semibold text-white truncate">{msg.pdf.name}</h4>
-                                  <p className="text-xs text-on-surface-variant mt-0.5 font-medium">{msg.pdf.label ?? "PDF Document"} - {msg.pdf.size}</p>
+                                  <p className="text-xs text-neutral-400 mt-0.5 font-medium">{msg.pdf.label ?? "PDF Document"} - {msg.pdf.size}</p>
                                 </div>
                               </div>
                             )}
                             {msg.attachments && msg.attachments.length > 0 && (
                               <div className="flex flex-col gap-2 mt-1">
                                 {msg.attachments.map((file, idx) => (
-                                  <div key={idx} className="bg-[#100d17]/70 border border-white/5 rounded-xl p-3 flex items-center gap-3">
+                                  <div key={idx} className="bg-black/30 border border-white/5 rounded-xl p-3 flex items-center gap-3">
                                     <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
                                       {getAttachmentIcon(file.label)}
                                     </div>
                                     <div className="min-w-0">
                                       <h4 className="text-sm font-semibold text-white truncate">{file.name}</h4>
-                                      <p className="text-xs text-on-surface-variant mt-0.5 font-medium">{file.label ?? "PDF Document"} - {file.size}</p>
+                                      <p className="text-xs text-neutral-400 mt-0.5 font-medium">{file.label ?? "PDF Document"} - {file.size}</p>
                                     </div>
                                   </div>
                                 ))}
@@ -821,17 +757,17 @@ I can help you review:
                             )}
                           </div>
                         ) : (
-                          <div className="bg-[#171421]/60 border border-white/5 text-on-surface p-4 rounded-2xl rounded-tl-sm shadow-md backdrop-blur-sm flex flex-col gap-3">
-                            <p className="text-sm md:text-base leading-relaxed text-on-surface/90 whitespace-pre-wrap font-sans">{msg.text}</p>
+                          <div className="text-white py-1 flex flex-col gap-3">
+                            <p className="text-base leading-relaxed whitespace-pre-wrap font-sans text-neutral-200">{msg.text}</p>
                             
                             {msg.pdf && (
-                              <div className="bg-[#100d17] border border-white/5 rounded-xl p-3.5 flex items-center gap-3.5 hover:border-primary/45 transition-all duration-200 group/pdf cursor-pointer">
-                                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center shrink-0 group-hover/pdf:bg-primary/15 transition-colors">
-                                  <FileText className="h-5 w-5 text-on-surface-variant group-hover/pdf:text-primary transition-colors" />
+                              <div className="bg-[#171717] border border-white/10 rounded-xl p-3 flex items-center gap-3.5 hover:bg-[#202020] transition-colors group/pdf cursor-pointer max-w-sm mt-2">
+                                <div className="w-10 h-10 rounded-lg bg-[#2a2a2a] flex items-center justify-center shrink-0">
+                                  <FileText className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <h4 className="text-sm font-semibold text-white truncate">{msg.pdf.name}</h4>
-                                  <p className="text-xs text-on-surface-variant mt-0.5 font-medium">PDF Document • {msg.pdf.size}</p>
+                                  <p className="text-xs text-neutral-400 mt-0.5 font-medium">PDF Document • {msg.pdf.size}</p>
                                 </div>
                                 <button 
                                   onClick={(e) => {
@@ -839,10 +775,10 @@ I can help you review:
                                     handleDownloadPDF(msg.pdf!.name);
                                   }}
                                   disabled={downloadStates[msg.pdf.name] === "loading"}
-                                  className="w-8 h-8 rounded-full bg-primary/10 hover:bg-primary/20 active:scale-95 flex items-center justify-center shrink-0 transition-colors text-primary ml-1 cursor-pointer"
+                                  className="w-8 h-8 rounded-full hover:bg-white/10 active:scale-95 flex items-center justify-center shrink-0 transition-colors text-white ml-1 cursor-pointer"
                                 >
                                   {downloadStates[msg.pdf.name] === "loading" ? (
-                                    <div className="h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                    <div className="h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                   ) : downloadStates[msg.pdf.name] === "done" ? (
                                     <Check className="h-4 w-4 text-green-400" />
                                   ) : (
@@ -854,24 +790,24 @@ I can help you review:
                           </div>
                         )}
 
-                        {/* Action buttons (only for AI answers, hidden by default, shown on hover) */}
+                        {/* Action buttons */}
                         {msg.sender === "ai" && (
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1.5 mt-1.5 ml-2">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1.5 mt-2">
                             <button 
                               onClick={() => copyToClipboard(msg.text, msg.id)}
-                              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-on-surface-variant hover:text-white transition-all cursor-pointer"
+                              className="p-1.5 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white transition-all cursor-pointer"
                               title="Copy Answer"
                             >
-                              {copiedMessageId === msg.id ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
+                              {copiedMessageId === msg.id ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
                             </button>
                             <button 
                               onClick={() => toggleBookmarkMessage(msg.id)}
-                              className={`p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer ${
-                                msg.isSaved ? "text-amber-400" : "text-on-surface-variant hover:text-white"
+                              className={`p-1.5 rounded-lg hover:bg-white/10 transition-all cursor-pointer ${
+                                msg.isSaved ? "text-amber-400" : "text-neutral-400 hover:text-white"
                               }`}
                               title={msg.isSaved ? "Starred" : "Star Answer"}
                             >
-                              <Star className={`h-3.5 w-3.5 ${msg.isSaved ? "fill-amber-400 text-amber-400" : ""}`} />
+                              <Star className={`h-4 w-4 ${msg.isSaved ? "fill-amber-400 text-amber-400" : ""}`} />
                             </button>
                           </div>
                         )}
@@ -918,195 +854,90 @@ I can help you review:
                 </div>
 
                 {/* Fixed Input Form */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface/95 to-transparent pt-6 pb-9 px-6 md:px-8 z-20">
-                  <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto w-full relative">
-                    {(attachedFiles.length > 0 || attachmentError) && (
-                      <div className="mb-2 flex gap-2 justify-start max-w-full overflow-x-auto [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 pb-1">
-                        {attachedFiles.map((file, idx) => (
-                          <div key={idx} className="shrink-0 w-48 bg-[#1c1924] border border-primary/25 rounded-xl px-2.5 py-1.5 flex items-center gap-2.5 shadow-lg shadow-black/20">
-                            <div className="shrink-0 bg-white/5 p-1.5 rounded-lg">
-                              {getAttachmentIcon(file.label, "h-4 w-4 text-primary")}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-12 pb-6 px-4 md:px-8 z-20 pointer-events-none">
+                  <div className="max-w-3xl mx-auto w-full relative pointer-events-auto">
+                    <form onSubmit={handleSendMessage}>
+                      {(attachedFiles.length > 0 || attachmentError) && (
+                        <div className="mb-2 flex gap-2 justify-start max-w-full overflow-x-auto [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10 pb-1">
+                          {attachedFiles.map((file, idx) => (
+                            <div key={idx} className="shrink-0 w-48 bg-[#2f2f2f] border border-white/10 rounded-xl px-2.5 py-1.5 flex items-center gap-2.5 shadow-lg shadow-black/20">
+                              <div className="shrink-0 bg-white/5 p-1.5 rounded-lg">
+                                {getAttachmentIcon(file.label, "h-4 w-4 text-white")}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-semibold text-white truncate">{file.name}</p>
+                                <p className="text-[10px] text-neutral-400 truncate">{file.size}</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeAttachedFile(idx)}
+                                className="h-6 w-6 flex items-center justify-center rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer ml-auto"
+                                title="Remove attachment"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-semibold text-white truncate">{file.name}</p>
-                              <p className="text-[10px] text-on-surface-variant truncate">{file.size}</p>
+                          ))}
+                          {attachmentError && (
+                            <div className={`shrink-0 bg-error-container/30 border border-error/30 rounded-xl px-3 py-2 text-xs font-medium text-on-error-container flex items-center transition-opacity duration-500 ${isErrorFading ? "opacity-0" : "opacity-100"}`}>
+                              {attachmentError}
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => removeAttachedFile(idx)}
-                              className="h-6 w-6 flex items-center justify-center rounded-full text-on-surface-variant hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer ml-auto"
-                              title="Remove attachment"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        ))}
-                        {attachmentError && (
-                          <div className={`shrink-0 bg-error-container/30 border border-error/30 rounded-xl px-3 py-2 text-xs font-medium text-on-error-container flex items-center transition-opacity duration-500 ${isErrorFading ? "opacity-0" : "opacity-100"}`}>
-                            {attachmentError}
-                          </div>
-                        )}
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="bg-[#2f2f2f] rounded-[24px] flex items-center p-1.5 shadow-lg shadow-black/40 focus-within:ring-1 focus-within:ring-white/20 transition-all">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          accept={ATTACHMENT_ACCEPT}
+                          onChange={handleFileSelection}
+                          className="hidden"
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-10 h-10 flex items-center justify-center text-neutral-400 hover:text-white rounded-full hover:bg-white/10 transition-all shrink-0 cursor-pointer ml-1"
+                          title="Attach file"
+                        >
+                          <Paperclip className="h-5 w-5" />
+                        </button>
+                        
+                        <input 
+                          type="text"
+                          value={inputVal}
+                          onChange={(e) => setInputVal(e.target.value)}
+                          autoComplete="off"
+                          className="flex-1 bg-transparent border-none focus:outline-none text-white placeholder:text-neutral-400 text-[15px] px-2 font-sans" 
+                          placeholder="Ask anything"
+                        />
+                        
+                        <button 
+                          type="submit"
+                          disabled={(!inputVal.trim() && attachedFiles.length === 0) || isTyping}
+                          className="w-9 h-9 mr-1 flex items-center justify-center rounded-full active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all shrink-0 cursor-pointer"
+                        >
+                          {isTyping ? (
+                            <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <div className={`w-full h-full rounded-full flex items-center justify-center transition-colors ${(inputVal.trim() || attachedFiles.length > 0) ? "bg-white text-black" : "bg-[#424242] text-neutral-400"}`}>
+                               <ArrowUp className="h-5 w-5 stroke-[2.5]" />
+                            </div>
+                          )}
+                        </button>
                       </div>
-                    )}
-                    <div className="bg-[#211e27] rounded-full border border-white/10 flex items-center p-2.5 shadow-lg shadow-black/30 backdrop-blur-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-all">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        accept={ATTACHMENT_ACCEPT}
-                        onChange={handleFileSelection}
-                        className="hidden"
-                      />
-                      <button 
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="p-3 text-on-surface-variant hover:text-on-surface rounded-full hover:bg-white/5 transition-all shrink-0 cursor-pointer"
-                        title="Attach file"
-                      >
-                        <Paperclip className="h-5 w-5" />
-                      </button>
                       
-                      <input 
-                        type="text"
-                        value={inputVal}
-                        onChange={(e) => setInputVal(e.target.value)}
-                        autoComplete="off"
-                        className="flex-1 bg-transparent border-none focus:outline-none text-on-surface placeholder:text-on-surface-variant/40 text-base md:text-[17px] px-3 font-sans" 
-                        placeholder={`Ask anything about ${currentSubjectInfo.name} exams...`}
-                      />
-                      
-                      <button 
-                        type="submit"
-                        disabled={(!inputVal.trim() && attachedFiles.length === 0) || isTyping}
-                        className="bg-primary text-white font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 active:scale-95 disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 ml-1 cursor-pointer shadow-md shadow-primary/25"
-                      >
-                        <span>Ask AI</span>
-                        <Send className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </form>
+                      <div className="text-center mt-2.5">
+                        <span className="text-[10px] text-neutral-500 font-medium tracking-wide">KalamBot AI can make mistakes. Check important info.</span>
+                      </div>
+                    </form>
+                  </div>
                 </div>
 
               </div>
 
-              {/* Subject Insights Panel (Desktop Sidebar) */}
-              <div className="hidden lg:flex w-80 border-l border-white/5 bg-surface-container-lowest/50 backdrop-blur-md flex-col overflow-y-auto p-6 scrollbar-none z-10">
-                <div className="space-y-6">
-                  
-                  {/* Gauge widget */}
-                  <div className="bg-[#1c1924] border border-white/5 rounded-2xl p-5 flex flex-col items-center text-center relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
-                    
-                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-4 flex items-center gap-1.5">
-                      <TrendingUp className="h-3.5 w-3.5 text-primary" /> Topic Recurrence
-                    </span>
 
-                    <div className="relative w-32 h-32 flex items-center justify-center mb-2">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle 
-                          cx="64" cy="64" r="54" 
-                          stroke="rgba(255,255,255,0.03)" 
-                          strokeWidth="8" 
-                          fill="transparent" 
-                        />
-                        <circle 
-                          cx="64" cy="64" r="54" 
-                          stroke="#0C3BEB" 
-                          strokeWidth="8" 
-                          fill="transparent" 
-                          strokeDasharray={2 * Math.PI * 54}
-                          strokeDashoffset={2 * Math.PI * 54 * (1 - currentSubjectInfo.recurrenceRate / 100)}
-                          strokeLinecap="round"
-                          className="transition-all duration-1000 ease-out"
-                        />
-                      </svg>
-                      <div className="absolute flex flex-col items-center justify-center">
-                        <span className="text-3xl font-extrabold text-white font-mono">{currentSubjectInfo.recurrenceRate}%</span>
-                        <span className="text-[9px] text-primary font-bold uppercase tracking-widest mt-0.5">Match</span>
-                      </div>
-                    </div>
-
-                    <p className="text-sm font-bold text-white mt-1.5">Predictive Index</p>
-                    <p className="text-xs text-on-surface-variant max-w-[200px] leading-relaxed mt-0.5">
-                      Questions have high repeat patterns in regular schedules.
-                    </p>
-                  </div>
-
-                  {/* PYQ Downloads List */}
-                  <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 select-none flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-primary" /> Past Year Papers
-                    </h3>
-                    <div className="space-y-2">
-                      {currentSubjectInfo.pdfs.map((pdf) => (
-                        <div 
-                          key={pdf.name}
-                          onClick={() => handleDownloadPDF(pdf.name)}
-                          className="flex items-center justify-between p-3.5 rounded-xl bg-[#1c1924] border border-white/5 hover:border-primary/40 hover:bg-[#23202e] transition-all cursor-pointer group"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors shrink-0">
-                              <FileText className="h-4 w-4 text-on-surface-variant group-hover:text-primary transition-colors" />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="text-sm font-bold text-white truncate group-hover:text-primary transition-colors">{pdf.year} Paper</h4>
-                              <p className="text-xs text-on-surface-variant font-medium mt-0.5">{pdf.size}</p>
-                            </div>
-                          </div>
-                          <button 
-                            disabled={downloadStates[pdf.name] === "loading"}
-                            className="p-1.5 rounded-lg bg-white/5 hover:bg-primary/20 text-on-surface-variant hover:text-white transition-colors cursor-pointer shrink-0"
-                          >
-                            {downloadStates[pdf.name] === "loading" ? (
-                              <div className="h-3 w-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                            ) : downloadStates[pdf.name] === "done" ? (
-                              <Check className="h-3.5 w-3.5 text-green-400" />
-                            ) : (
-                              <Download className="h-3.5 w-3.5 text-on-surface-variant group-hover:text-primary" />
-                            )}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Hot Focus Areas */}
-                  <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3 select-none flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-primary" /> High Priority Focus
-                    </h3>
-                    <div className="space-y-3">
-                      {currentSubjectInfo.topics.map((topic) => (
-                        <div 
-                          key={topic.name}
-                          onClick={() => {
-                            setInputVal(`Tell me about exam questions for: ${topic.name}`);
-                          }}
-                          className="bg-[#1c1924] border border-white/5 hover:border-primary/30 p-3.5 rounded-xl hover:bg-[#23202e] cursor-pointer transition-all group"
-                        >
-                          <div className="flex justify-between items-center text-sm font-semibold mb-1">
-                            <span className="text-white truncate group-hover:text-primary transition-colors pr-2">{topic.name}</span>
-                            <span className="text-primary font-mono shrink-0">{topic.weight}%</span>
-                          </div>
-                          
-                          {/* Progress bar */}
-                          <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-1.5">
-                            <div 
-                              className="bg-primary h-full rounded-full transition-all duration-1000"
-                              style={{ width: `${topic.weight}%` }}
-                            />
-                          </div>
-
-                          <p className="text-xs text-on-surface-variant/80 line-clamp-2 leading-relaxed">
-                            {topic.desc}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              </div>
 
             </div>
           )}
