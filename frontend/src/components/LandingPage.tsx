@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Search, 
   ArrowRight, 
-  BookOpen
+  Bookmark
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -55,7 +55,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 flex items-center px-6 md:px-16 h-20 bg-transparent transition-all duration-300">
         <div className="flex items-center gap-2 text-xl md:text-2xl font-bold tracking-tight text-on-surface select-none">
           <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center shadow-md shadow-primary/25">
-            <BookOpen className="h-5 w-5 text-on-primary-container" />
+            <Bookmark className="h-5 w-5 text-on-primary-container" />
           </div>
           <span>KalamBot</span>
         </div>
