@@ -477,7 +477,7 @@ I can help you review:
               <div className="flex-1 flex flex-col relative h-full bg-transparent overflow-hidden">
                 
                 {/* Scrollable Conversation */}
-                <div className="flex-1 overflow-y-auto px-6 py-6 pb-28 flex flex-col gap-6 max-w-3xl mx-auto w-full scrollbar-none">
+                <div className="flex-1 overflow-y-auto px-6 py-6 pb-36 flex flex-col gap-6 max-w-3xl mx-auto w-full scrollbar-none">
                   
                   {messages.map((msg) => (
                     <div 
@@ -600,16 +600,16 @@ I can help you review:
                 </div>
 
                 {/* Fixed Input Form */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface/95 to-transparent pt-6 pb-6 px-6 z-20">
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface/95 to-transparent pt-6 pb-9 px-6 md:px-8 z-20">
                   <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto w-full relative">
-                    <div className="bg-[#211e27] rounded-full border border-white/10 flex items-center p-1.5 shadow-lg shadow-black/30 backdrop-blur-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-all">
+                    <div className="bg-[#211e27] rounded-full border border-white/10 flex items-center p-2.5 shadow-lg shadow-black/30 backdrop-blur-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-all">
                       <button 
                         type="button"
                         onClick={() => alert("File upload supports PDF syllabus or student schedules.")}
-                        className="p-2.5 text-on-surface-variant hover:text-on-surface rounded-full hover:bg-white/5 transition-all shrink-0 cursor-pointer"
+                        className="p-3 text-on-surface-variant hover:text-on-surface rounded-full hover:bg-white/5 transition-all shrink-0 cursor-pointer"
                         title="Upload syllabus"
                       >
-                        <Paperclip className="h-4.5 w-4.5" />
+                        <Paperclip className="h-5 w-5" />
                       </button>
                       
                       <input 
@@ -617,17 +617,17 @@ I can help you review:
                         value={inputVal}
                         onChange={(e) => setInputVal(e.target.value)}
                         autoComplete="off"
-                        className="flex-1 bg-transparent border-none focus:outline-none text-on-surface placeholder:text-on-surface-variant/40 text-sm md:text-base px-3 font-sans" 
+                        className="flex-1 bg-transparent border-none focus:outline-none text-on-surface placeholder:text-on-surface-variant/40 text-base md:text-[17px] px-3 font-sans" 
                         placeholder={`Ask anything about ${currentSubjectInfo.name} exams...`}
                       />
                       
                       <button 
                         type="submit"
                         disabled={!inputVal.trim() || isTyping}
-                        className="bg-primary text-white font-semibold text-xs px-5 py-2.5 rounded-full hover:opacity-90 active:scale-95 disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 ml-1 cursor-pointer shadow-md shadow-primary/25"
+                        className="bg-primary text-white font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 active:scale-95 disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 ml-1 cursor-pointer shadow-md shadow-primary/25"
                       >
                         <span>Ask AI</span>
-                        <Send className="h-3 w-3" />
+                        <Send className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </form>
