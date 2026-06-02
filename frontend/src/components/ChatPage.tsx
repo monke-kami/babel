@@ -433,18 +433,34 @@ export default function ChatPage() {
     await triggerSubjectAnalysis(currentSubjectCode, userText);
   };
 
-  const handleDownloadPDF = (fileName: string) => {
+  const handleDownloadPDF = async (fileName: string) => {
     setDownloadStates(prev => ({ ...prev, [fileName]: "loading" }));
     
-    // Simulate progress
-    setTimeout(() => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/download/${fileName}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      
       setDownloadStates(prev => ({ ...prev, [fileName]: "done" }));
       setTimeout(() => {
         // Reset to idle after displaying success check
         setDownloadStates(prev => ({ ...prev, [fileName]: "idle" }));
-        alert(`Finished downloading ${fileName}`);
       }, 1500);
-    }, 2000);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      setDownloadStates(prev => ({ ...prev, [fileName]: "idle" }));
+      alert(`Error downloading ${fileName}`);
+    }
   };
 
   const copyToClipboard = (text: string, id: string) => {

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
 import logging
+from pathlib import Path
 
 from app.services.scraper import ScraperService
 from app.services.analyzer import AnalyzerService
@@ -79,3 +81,13 @@ async def generate_full_report(subject_code: str):
     except Exception as e:
         logger.error(f"Error in full pipeline: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/download/{filename}")
+async def download_file(filename: str):
+    """
+    Downloads a generated PDF report.
+    """
+    file_path = Path("data/output_pdfs") / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(path=file_path, filename=filename, media_type='application/pdf')
