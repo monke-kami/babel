@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -17,7 +16,6 @@ import {
   MonitorIcon,
   CircleUserRound,
   ArrowUpIcon,
-  Paperclip,
   FileText,
   X,
   Code2,
@@ -28,40 +26,7 @@ import {
   Mic,
 } from "lucide-react";
 
-interface AutoResizeProps {
-  minHeight: number;
-  maxHeight?: number;
-}
 
-function useAutoResizeTextarea({ minHeight, maxHeight }: AutoResizeProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const adjustHeight = useCallback(
-    (reset?: boolean) => {
-      const textarea = textareaRef.current;
-      if (!textarea) return;
-
-      if (reset) {
-        textarea.style.height = `${minHeight}px`;
-        return;
-      }
-
-      textarea.style.height = `${minHeight}px`; // reset first
-      const newHeight = Math.max(
-        minHeight,
-        Math.min(textarea.scrollHeight, maxHeight ?? Infinity)
-      );
-      textarea.style.height = `${newHeight}px`;
-    },
-    [minHeight, maxHeight]
-  );
-
-  useEffect(() => {
-    if (textareaRef.current) textareaRef.current.style.height = `${minHeight}px`;
-  }, [minHeight]);
-
-  return { textareaRef, adjustHeight };
-}
 
 export interface RuixenMoonChatProps {
   onSearchSubmit?: (subject: string) => void;
@@ -69,7 +34,7 @@ export interface RuixenMoonChatProps {
   title?: string;
   subtitle?: string;
   placeholder?: string;
-  quickActions?: { icon: React.ReactNode; label: string; onClick?: () => void }[];
+  quickActions?: { icon: React.ReactNode; label: string; code?: string; onClick?: () => void }[];
 }
 
 export default function RuixenMoonChat({
@@ -85,10 +50,6 @@ export default function RuixenMoonChat({
   const [attachmentError, setAttachmentError] = useState("");
   const [isErrorFading, setIsErrorFading] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
-  const { textareaRef, adjustHeight } = useAutoResizeTextarea({
-    minHeight: 48,
-    maxHeight: 150,
-  });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragDepthRef = useRef(0);
 
@@ -203,14 +164,7 @@ export default function RuixenMoonChat({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const defaultQuickActions: { icon: React.ReactNode; label: string; onClick?: () => void }[] = [
+  const defaultQuickActions: { icon: React.ReactNode; label: string; code?: string; onClick?: () => void }[] = [
     { icon: <Code2 className="w-4 h-4" />, label: "Generate Code" },
     { icon: <Rocket className="w-4 h-4" />, label: "Launch App" },
     { icon: <Layers className="w-4 h-4" />, label: "UI Components" },
@@ -374,7 +328,16 @@ export default function RuixenMoonChat({
               key={index}
               icon={action.icon}
               label={action.label}
-              onClick={action.onClick}
+              onClick={() => {
+                if (action.code) {
+                  setMessage(action.code);
+                  setTimeout(() => {
+                    action.onClick?.();
+                  }, 400);
+                } else {
+                  action.onClick?.();
+                }
+              }}
             />
           ))}
         </div>

@@ -25,6 +25,7 @@ export default function LandingPage() {
   const quickActions = sampleChips.map((chip) => ({
     icon: chip.icon,
     label: `${chip.code} (${chip.name})`,
+    code: chip.code,
     onClick: () => handleSearchSubmit(chip.code),
   }));
 

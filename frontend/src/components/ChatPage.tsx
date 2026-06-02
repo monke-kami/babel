@@ -21,9 +21,14 @@ import {
   Calendar,
   Sparkles,
   ArrowUpRight,
-  BookmarkCheck
+  BookmarkCheck,
+  ArrowUp,
+  Database,
+  Globe,
+  Lightbulb
 } from "lucide-react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import {
   ATTACHMENT_ACCEPT,
   ATTACHMENT_ERROR_MESSAGE,
@@ -126,7 +131,38 @@ const SUBJECT_DATABASE: Record<string, {
 export default function ChatPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const initialSubject = searchParams.get("subject") || "";
+  
+  const [isLanding, setIsLanding] = useState(location.pathname === "/");
+  const [isExiting, setIsExiting] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setIsLanding(true);
+      setIsExiting(false);
+    } else {
+      setIsLanding(false);
+      setIsExiting(false);
+    }
+  }, [location.pathname]);
+
+  const [landingInput, setLandingInput] = useState("");
+  
+  const handleLandingSubmit = (subject: string) => {
+    setIsExiting(true);
+    setTimeout(() => {
+      setIsLanding(false);
+      navigate(`/chat?subject=${encodeURIComponent(subject)}`);
+    }, 1200); 
+  };
+
+  const landingChips = [
+    { code: "CST302", name: "Operating Systems", icon: <BookOpen className="w-4 h-4" /> },
+    { code: "CST304", name: "DBMS", icon: <Database className="w-4 h-4" /> },
+    { code: "CST306", name: "Computer Networks", icon: <Globe className="w-4 h-4" /> },
+    { code: "CST308", name: "Design & Engineering", icon: <Lightbulb className="w-4 h-4" /> },
+  ];
 
   // Try matching subject code or default to CST302
   const parsedCode = initialSubject.trim().toUpperCase();
@@ -475,13 +511,102 @@ I can help you review:
 
   return (
     <div
-      className="bg-surface text-on-surface h-screen max-h-screen overflow-hidden flex font-sans mesh-bg antialiased relative"
+      className="bg-black text-on-surface h-screen max-h-screen overflow-hidden flex font-sans antialiased relative"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className="grid-overlay" />
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center"
+        style={{
+          backgroundImage: "url('https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/ruixen_moon_2.png')",
+          backgroundAttachment: "fixed",
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-[#0d0a14]/60 to-[#0a070f] z-0 pointer-events-none" />
+
+      {/* ═══ Landing Hero Overlay ═══ */}
+      <div 
+        className={cn(
+          "absolute inset-0 z-50 flex flex-col items-center px-6 transition-all duration-[1200ms] ease-in-out",
+          (!isExiting && isLanding) ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-12 pointer-events-none"
+        )}
+      >
+        {/* Top Header */}
+        <nav className="absolute top-0 left-0 w-full z-50 flex items-center px-6 md:px-16 h-20 bg-transparent animate-fade-in-up">
+          <div className="flex items-center gap-2 text-xl md:text-2xl font-bold tracking-tight text-neutral-100/90 select-none">
+            <div className="h-9 w-9 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md flex items-center justify-center shadow-sm shadow-black/20">
+              <Bookmark className="h-5 w-5 text-blue-200/80" />
+            </div>
+            <span>KalamBot</span>
+          </div>
+        </nav>
+
+        {/* Hero Content & Search Bar Centered */}
+        <div className="flex-1 w-full flex flex-col items-center justify-center z-10 px-4 mt-8">
+          <div className="text-center max-w-3xl w-full mx-auto animate-fade-in-up">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6">
+              KalamBot.AI
+            </h1>
+            <p className="text-base md:text-xl text-neutral-400 mb-10 max-w-2xl mx-auto font-sans leading-relaxed">
+              Analyze KTU PYQs in Seconds. Discover repeated topics, frequently asked questions, and high-priority exam areas.
+            </p>
+            
+            <div className="relative w-full max-w-2xl mx-auto flex flex-col items-center group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-blue-600/30 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="flex items-center bg-black/60 backdrop-blur-md rounded-full border border-neutral-700/80 shadow-2xl px-2 py-2 w-full transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/30 relative z-10">
+                <input
+                  type="text"
+                  value={landingInput}
+                  onChange={(e) => setLandingInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey && landingInput.trim()) {
+                      e.preventDefault();
+                      handleLandingSubmit(landingInput);
+                    }
+                  }}
+                  placeholder="Enter Subject Code (e.g. CST302 or Operating Systems)"
+                  className="flex-1 bg-transparent border-none text-white text-base md:text-lg px-4 py-2 focus:outline-none placeholder:text-neutral-500 font-sans"
+                />
+                
+                <div className="flex items-center gap-1.5 mr-1">
+                  <button
+                    disabled={!landingInput.trim()}
+                    onClick={() => handleLandingSubmit(landingInput)}
+                    className={cn(
+                      "flex items-center justify-center rounded-full w-11 h-11 transition-all shrink-0 cursor-pointer shadow-md",
+                      !landingInput.trim()
+                        ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                        : "bg-white text-black hover:bg-neutral-200 hover:scale-105"
+                    )}
+                  >
+                    <ArrowUp className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center flex-wrap gap-3 mt-8 animate-fade-in-up [animation-delay:400ms]">
+              {landingChips.map((chip, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setLandingInput(chip.code);
+                    setTimeout(() => {
+                      handleLandingSubmit(chip.code);
+                    }, 400);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-neutral-900/50 hover:bg-neutral-800/80 border border-neutral-800 hover:border-neutral-700 rounded-xl text-neutral-300 hover:text-white transition-all cursor-pointer shadow-sm"
+                >
+                  <span className="text-primary/80">{chip.icon}</span>
+                  <span className="text-sm font-medium">{chip.code} ({chip.name})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
       {isDragActive && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface/80 backdrop-blur-xl px-6 pointer-events-none">
           <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-primary/35 bg-[#1c1924]/95 p-6 text-center shadow-2xl shadow-black/50">
@@ -498,8 +623,10 @@ I can help you review:
       )}
 
       {/* SideNavBar (Desktop/Drawer) */}
-      <aside className={`flex flex-col h-full py-6 bg-surface-container-low/95 backdrop-blur-xl border-r border-white/5 shrink-0 z-40 fixed md:sticky top-0 transition-transform duration-300 w-64 ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      <aside className={`flex flex-col h-full py-6 bg-surface-container-low/95 backdrop-blur-xl border-r border-white/5 shrink-0 z-40 fixed md:sticky top-0 w-64 ${
+        isLanding 
+          ? "-translate-x-full" 
+          : (sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0")
       }`}>
         <div className="px-6 mb-8 flex justify-between items-center">
           <div>
@@ -580,7 +707,9 @@ I can help you review:
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col relative h-screen max-h-screen overflow-hidden">
+      <main className={`flex-1 flex flex-col relative h-screen max-h-screen overflow-hidden ${
+        isLanding ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"
+      }`}>
         
         {/* Header */}
         <header className="flex items-center justify-between px-6 md:px-8 h-18 border-b border-white/5 bg-surface/50 backdrop-blur-md sticky top-0 z-30">
