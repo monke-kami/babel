@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Geist", sans-serif;
+  --font-display: "Geist", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-surface-container-high: #2c2832;
+  --color-on-primary-container: #340080;
+  --color-surface-tint: #d0bcff;
+  --color-on-primary: #3c0091;
+  --color-on-secondary: #303033;
+  --color-on-error-container: #ffdad6;
+  --color-primary: #d0bcff;
+  --color-error: #ffb4ab;
+  --color-surface-container-low: #1d1a23;
+  --color-on-tertiary-container: #00311f;
+  --color-surface-variant: #37333d;
+  --color-on-background: #e7e0ed;
+  --color-surface-container-highest: #37333d;
+  --color-on-surface: #e7e0ed;
+  --color-secondary-fixed: #e4e1e6;
+  --color-secondary-fixed-dim: #c8c5ca;
+  --color-inverse-on-surface: #322f39;
+  --color-surface: #15121b;
+  --color-on-primary-fixed: #23005c;
+  --color-on-tertiary-fixed-variant: #005236;
+  --color-primary-fixed-dim: #d0bcff;
+  --color-outline: #958ea0;
+  --color-on-tertiary-fixed: #002113;
+  --color-secondary-container: #47464a;
+  --color-on-error: #690005;
+  --color-primary-container: #a078ff;
+  --color-surface-dim: #15121b;
+  --color-on-surface-variant: #cbc3d7;
+  --color-inverse-surface: #e7e0ed;
+  --color-surface-bright: #3b3742;
+  --color-secondary: #c8c5ca;
+  --color-outline-variant: #494454;
+  --color-surface-container: #211e27;
+  --color-on-secondary-fixed: #1b1b1e;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-tertiary: #4edea3;
+  --color-tertiary-container: #00a572;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-inverse-primary: #6d3bd7;
+  --color-error-container: #93000a;
+  --color-on-primary-fixed-variant: #5516be;
+  --color-on-secondary-fixed-variant: #47464a;
+  --color-on-secondary-container: #b6b4b8;
+  --color-on-tertiary: #003824;
+  --color-background: #15121b;
+  --color-primary-fixed: #e9ddff;
+  --color-surface-container-lowest: #0f0d15;
+
+  --spacing-stack-md: 16px;
+  --spacing-margin-mobile: 20px;
+  --spacing-stack-sm: 8px;
+  --spacing-container-max: 1280px;
+  --spacing-margin-desktop: 64px;
+  --spacing-gutter: 24px;
+  --spacing-unit: 4px;
+  --spacing-stack-lg: 32px;
+
+  --radius-default: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+}
+
+/* Custom design classes */
+.mesh-bg {
+  background-color: #15121b;
+  background-image: 
+    radial-gradient(at 40% 20%, hsla(267,100%,74%,0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(280,100%,74%,0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(267,100%,74%,0.15) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.grid-overlay {
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.glass-panel {
+  background: rgba(24, 24, 27, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #d0bcff 0%, #a078ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
