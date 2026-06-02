@@ -647,7 +647,7 @@ I can help you review:
                       <TrendingUp className="h-3.5 w-3.5 text-primary" /> Topic Recurrence
                     </span>
 
-                    <div className="relative w-32 h-32 flex items-center justify-center mb-3">
+                    <div className="relative w-32 h-32 flex items-center justify-center mb-2">
                       <svg className="w-full h-full transform -rotate-90">
                         <circle 
                           cx="64" cy="64" r="54" 
@@ -668,11 +668,12 @@ I can help you review:
                       </svg>
                       <div className="absolute flex flex-col items-center justify-center">
                         <span className="text-3xl font-extrabold text-white font-mono">{currentSubjectInfo.recurrenceRate}%</span>
-                        <span className="text-[10px] md:text-xs text-on-surface-variant font-semibold uppercase tracking-wider">Predictive Index</span>
+                        <span className="text-[9px] text-primary font-bold uppercase tracking-widest mt-0.5">Match</span>
                       </div>
                     </div>
 
-                    <p className="text-sm text-on-surface-variant max-w-[200px] leading-relaxed">
+                    <p className="text-sm font-bold text-white mt-1.5">Predictive Index</p>
+                    <p className="text-xs text-on-surface-variant max-w-[200px] leading-relaxed mt-0.5">
                       Questions have high repeat patterns in regular schedules.
                     </p>
                   </div>
