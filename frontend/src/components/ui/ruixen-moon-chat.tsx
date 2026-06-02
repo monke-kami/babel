@@ -5,6 +5,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
+  ATTACHMENT_ACCEPT,
+  ATTACHMENT_ERROR_MESSAGE,
+  createAttachmentMeta,
+  hasDraggedFiles,
+  type AttachmentMeta
+} from "@/lib/attachments";
+import {
   ImageIcon,
   FileUp,
   MonitorIcon,
@@ -72,58 +79,115 @@ export default function RuixenMoonChat({
   quickActions,
 }: RuixenMoonChatProps) {
   const [message, setMessage] = useState("");
-  const [attachedPdf, setAttachedPdf] = useState<{ name: string; size: string } | null>(null);
+  const [attachedFile, setAttachedFile] = useState<AttachmentMeta | null>(null);
   const [attachmentError, setAttachmentError] = useState("");
+  const [isDragActive, setIsDragActive] = useState(false);
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 48,
     maxHeight: 150,
   });
-  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragDepthRef = useRef(0);
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024 * 1024) {
-      return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-    }
-
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const handlePdfSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const attachFile = (file?: File | null) => {
     setAttachmentError("");
 
-    if (!file) return;
+    if (!file) return false;
 
-    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const attachment = createAttachmentMeta(file);
 
-    if (!isPdf) {
-      setAttachedPdf(null);
-      setAttachmentError("Only PDF files can be attached.");
+    if (!attachment) {
+      setAttachedFile(null);
+      setAttachmentError(ATTACHMENT_ERROR_MESSAGE);
+      return false;
+    }
+
+    setAttachedFile(attachment);
+    return true;
+  };
+
+  const attachFirstAllowedFile = (files?: FileList | File[] | null) => {
+    const fileList = Array.from(files ?? []);
+
+    if (fileList.length === 0) return false;
+
+    const allowedFile = fileList.find(file => createAttachmentMeta(file));
+
+    if (!allowedFile) {
+      setAttachedFile(null);
+      setAttachmentError(ATTACHMENT_ERROR_MESSAGE);
+      return false;
+    }
+
+    return attachFile(allowedFile);
+  };
+
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const didAttach = attachFirstAllowedFile(e.target.files);
+
+    if (!didAttach) {
       e.target.value = "";
-      return;
     }
-
-    setAttachedPdf({
-      name: file.name,
-      size: formatFileSize(file.size),
-    });
   };
 
-  const clearAttachedPdf = () => {
-    setAttachedPdf(null);
+  const clearAttachedFile = () => {
+    setAttachedFile(null);
     setAttachmentError("");
 
-    if (pdfInputRef.current) {
-      pdfInputRef.current.value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
+  };
+
+  const getAttachmentIcon = (label?: string, className = "h-4.5 w-4.5 text-blue-400 shrink-0") => {
+    if (label?.includes("Image")) {
+      return <ImageIcon className={className} />;
+    }
+
+    return <FileText className={className} />;
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    dragDepthRef.current += 1;
+    setIsDragActive(true);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+
+    if (dragDepthRef.current === 0) {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    dragDepthRef.current = 0;
+    setIsDragActive(false);
+    attachFirstAllowedFile(e.dataTransfer.files);
   };
 
   const handleSend = () => {
     const trimmedMessage = message.trim();
 
-    if ((!trimmedMessage && !attachedPdf) || isSearching) return;
+    if ((!trimmedMessage && !attachedFile) || isSearching) return;
     if (onSearchSubmit) {
-      onSearchSubmit(trimmedMessage || `Attached ${attachedPdf!.name}`);
+      onSearchSubmit(trimmedMessage || `Attached ${attachedFile!.name}`);
     }
   };
 
@@ -150,6 +214,10 @@ export default function RuixenMoonChat({
   return (
     <div
       className="relative w-full h-screen bg-cover bg-center flex flex-col items-center"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
       style={{
         backgroundImage:
           "url('https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/ruixen_moon_2.png')",
@@ -158,6 +226,20 @@ export default function RuixenMoonChat({
     >
       {/* Deep dark gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-[#0d0a14]/60 to-[#0a070f] z-0 pointer-events-none" />
+      {isDragActive && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-xl px-6 pointer-events-none">
+          <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-blue-500/35 bg-neutral-950/95 p-6 text-center shadow-2xl shadow-black/60">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-500/25 bg-blue-500/15 shadow-lg shadow-blue-500/15">
+              <FileUp className="h-7 w-7 text-blue-400" />
+            </div>
+            <h3 className="text-base font-bold text-white">Drop file to attach</h3>
+            <p className="mt-1.5 text-xs leading-relaxed text-neutral-300">
+              PDF, JPEG, PNG, and text files are supported.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Centered AI Title */}
       <div className="flex-1 w-full flex flex-col items-center justify-end pb-8 px-4 z-10">
@@ -174,22 +256,22 @@ export default function RuixenMoonChat({
       {/* Input Box Section */}
       <div className="w-full max-w-3xl mb-[20vh] px-4 z-10">
         <div className="relative bg-black/60 backdrop-blur-md rounded-xl border border-neutral-700 shadow-2xl">
-          {(attachedPdf || attachmentError) && (
+          {(attachedFile || attachmentError) && (
             <div className="border-b border-neutral-800/70 px-3 py-2">
-              {attachedPdf ? (
+              {attachedFile ? (
                 <div className="max-w-full rounded-lg border border-blue-500/30 bg-neutral-950/80 px-3 py-2 flex items-center gap-3">
-                  <FileText className="h-4.5 w-4.5 text-blue-400 shrink-0" />
+                  {getAttachmentIcon(attachedFile.label)}
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{attachedPdf.name}</p>
-                    <p className="text-[11px] text-neutral-400">PDF Document - {attachedPdf.size}</p>
+                    <p className="text-xs font-semibold text-white truncate">{attachedFile.name}</p>
+                    <p className="text-[11px] text-neutral-400">{attachedFile.label} - {attachedFile.size}</p>
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={clearAttachedPdf}
+                    onClick={clearAttachedFile}
                     className="ml-auto h-7 w-7 shrink-0 rounded-full text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                    title="Remove PDF"
+                    title="Remove attachment"
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -222,30 +304,30 @@ export default function RuixenMoonChat({
           {/* Footer Buttons */}
           <div className="flex items-center justify-between p-3 border-t border-neutral-800/50">
             <input
-              ref={pdfInputRef}
+              ref={fileInputRef}
               type="file"
-              accept="application/pdf,.pdf"
-              onChange={handlePdfSelection}
+              accept={ATTACHMENT_ACCEPT}
+              onChange={handleFileSelection}
               className="hidden"
             />
             <Button
               variant="ghost"
               size="icon"
               type="button"
-              onClick={() => pdfInputRef.current?.click()}
+              onClick={() => fileInputRef.current?.click()}
               className="text-white hover:bg-neutral-800"
-              title="Attach PDF"
+              title="Attach file"
             >
               <Paperclip className="w-4 h-4" />
             </Button>
 
             <div className="flex items-center gap-2">
               <Button
-                disabled={(!message.trim() && !attachedPdf) || isSearching}
+                disabled={(!message.trim() && !attachedFile) || isSearching}
                 onClick={handleSend}
                 className={cn(
                   "flex items-center gap-1 px-3 py-2 rounded-lg transition-colors cursor-pointer",
-                  ((!message.trim() && !attachedPdf) || isSearching)
+                  ((!message.trim() && !attachedFile) || isSearching)
                     ? "bg-neutral-700 text-neutral-400 cursor-not-allowed"
                     : "bg-white text-black hover:bg-neutral-200"
                 )}

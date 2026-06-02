@@ -5,9 +5,11 @@ import {
   History, 
   Star, 
   Paperclip, 
+  FileUp,
   Send, 
   Download, 
   FileText, 
+  ImageIcon,
   Bot, 
   Menu, 
   X,
@@ -22,15 +24,19 @@ import {
   BookmarkCheck
 } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import {
+  ATTACHMENT_ACCEPT,
+  ATTACHMENT_ERROR_MESSAGE,
+  createAttachmentMeta,
+  hasDraggedFiles,
+  type AttachmentMeta
+} from "@/lib/attachments";
 
 interface Message {
   id: string;
   sender: "user" | "ai";
   text: string;
-  pdf?: {
-    name: string;
-    size: string;
-  };
+  pdf?: AttachmentMeta;
   isSaved?: boolean;
 }
 
@@ -146,7 +152,8 @@ export default function ChatPage() {
 Here is the parsed question paper vault and the high-priority exam topics. Ask me anything about specific sub-units, derivations, or problem-solving templates!`,
       pdf: {
         name: currentSubjectInfo.pdfs[0].name,
-        size: currentSubjectInfo.pdfs[0].size
+        size: currentSubjectInfo.pdfs[0].size,
+        label: "PDF Document"
       }
     }
   ]);
@@ -155,8 +162,9 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   const [isTyping, setIsTyping] = useState(false);
   const [thinkingSteps, setThinkingSteps] = useState<string[]>([]);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-  const [attachedPdf, setAttachedPdf] = useState<Message["pdf"] | null>(null);
+  const [attachedFile, setAttachedFile] = useState<Message["pdf"] | null>(null);
   const [attachmentError, setAttachmentError] = useState("");
+  const [isDragActive, setIsDragActive] = useState(false);
   
   // Download simulation state map
   const [downloadStates, setDownloadStates] = useState<Record<string, "idle" | "loading" | "done">>({});
@@ -171,7 +179,8 @@ Here is the parsed question paper vault and the high-priority exam topics. Ask m
   const [isSubjectBookmarked, setIsSubjectBookmarked] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragDepthRef = useRef(0);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -203,7 +212,8 @@ I can help you review:
 - **Unit-wise priority maps**`,
         pdf: {
           name: subjectDetails.pdfs[0].name,
-          size: subjectDetails.pdfs[0].size
+          size: subjectDetails.pdfs[0].size,
+          label: "PDF Document"
         }
       }
     ]);
@@ -211,60 +221,135 @@ I can help you review:
     setSidebarOpen(false);
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024 * 1024) {
-      return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-    }
-
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const handlePdfSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const attachFile = (file?: File | null) => {
     setAttachmentError("");
 
-    if (!file) return;
+    if (!file) return false;
 
-    const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const attachment = createAttachmentMeta(file);
 
-    if (!isPdf) {
-      setAttachedPdf(null);
-      setAttachmentError("Only PDF files can be attached.");
+    if (!attachment) {
+      setAttachedFile(null);
+      setAttachmentError(ATTACHMENT_ERROR_MESSAGE);
+      return false;
+    }
+
+    setAttachedFile(attachment);
+    return true;
+  };
+
+  const attachFirstAllowedFile = (files?: FileList | File[] | null) => {
+    const fileList = Array.from(files ?? []);
+
+    if (fileList.length === 0) return false;
+
+    const allowedFile = fileList.find(file => createAttachmentMeta(file));
+
+    if (!allowedFile) {
+      setAttachedFile(null);
+      setAttachmentError(ATTACHMENT_ERROR_MESSAGE);
+      return false;
+    }
+
+    return attachFile(allowedFile);
+  };
+
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const didAttach = attachFirstAllowedFile(e.target.files);
+
+    if (!didAttach) {
       e.target.value = "";
-      return;
     }
-
-    setAttachedPdf({
-      name: file.name,
-      size: formatFileSize(file.size)
-    });
   };
 
-  const clearAttachedPdf = () => {
-    setAttachedPdf(null);
+  const clearAttachedFile = () => {
+    setAttachedFile(null);
     setAttachmentError("");
 
-    if (pdfInputRef.current) {
-      pdfInputRef.current.value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
+
+  const getAttachmentIcon = (label?: string, className = "h-4.5 w-4.5 text-primary") => {
+    if (label?.includes("Image")) {
+      return <ImageIcon className={className} />;
+    }
+
+    return <FileText className={className} />;
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    dragDepthRef.current += 1;
+    setIsDragActive(true);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+
+    if (dragDepthRef.current === 0) {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e.dataTransfer)) return;
+
+    e.preventDefault();
+    dragDepthRef.current = 0;
+    setIsDragActive(false);
+    attachFirstAllowedFile(e.dataTransfer.files);
+  };
+
+  useEffect(() => {
+    const handleClipboardPaste = (e: ClipboardEvent) => {
+      const pastedFiles = Array.from(e.clipboardData?.items ?? [])
+        .filter(item => item.kind === "file")
+        .map(item => item.getAsFile())
+        .filter((file): file is File => Boolean(file));
+
+      if (pastedFiles.length === 0) return;
+
+      e.preventDefault();
+      attachFirstAllowedFile(pastedFiles);
+    };
+
+    window.addEventListener("paste", handleClipboardPaste);
+
+    return () => {
+      window.removeEventListener("paste", handleClipboardPaste);
+    };
+  });
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedInput = inputVal.trim();
 
-    if (!trimmedInput && !attachedPdf) return;
+    if (!trimmedInput && !attachedFile) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: "user",
-      text: trimmedInput || `Attached ${attachedPdf!.name}`,
-      pdf: attachedPdf ?? undefined
+      text: trimmedInput || `Attached ${attachedFile!.name}`,
+      pdf: attachedFile ?? undefined
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputVal("");
-    clearAttachedPdf();
+    clearAttachedFile();
     
     // Trigger Thinking Phase
     setIsTyping(true);
@@ -377,8 +462,28 @@ I can help you review:
   const starredMessages = messages.filter(m => m.isSaved);
 
   return (
-    <div className="bg-surface text-on-surface h-screen max-h-screen overflow-hidden flex font-sans mesh-bg antialiased relative">
+    <div
+      className="bg-surface text-on-surface h-screen max-h-screen overflow-hidden flex font-sans mesh-bg antialiased relative"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className="grid-overlay" />
+      {isDragActive && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface/80 backdrop-blur-xl px-6 pointer-events-none">
+          <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-primary/35 bg-[#1c1924]/95 p-6 text-center shadow-2xl shadow-black/50">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 shadow-lg shadow-primary/15">
+              <FileUp className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="text-base font-bold text-white">Drop file to attach</h3>
+            <p className="mt-1.5 text-xs leading-relaxed text-on-surface-variant">
+              PDF, JPEG, PNG, and text files are supported.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* SideNavBar (Desktop/Drawer) */}
       <aside className={`flex flex-col h-full py-6 bg-surface-container-low/95 backdrop-blur-xl border-r border-white/5 shrink-0 z-40 fixed md:sticky top-0 transition-transform duration-300 w-64 ${
@@ -550,11 +655,11 @@ I can help you review:
                             {msg.pdf && (
                               <div className="bg-[#100d17]/70 border border-white/5 rounded-xl p-3 flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
-                                  <FileText className="h-4.5 w-4.5 text-primary" />
+                                  {getAttachmentIcon(msg.pdf.label)}
                                 </div>
                                 <div className="min-w-0">
                                   <h4 className="text-sm font-semibold text-white truncate">{msg.pdf.name}</h4>
-                                  <p className="text-xs text-on-surface-variant mt-0.5 font-medium">PDF Document - {msg.pdf.size}</p>
+                                  <p className="text-xs text-on-surface-variant mt-0.5 font-medium">{msg.pdf.label ?? "PDF Document"} - {msg.pdf.size}</p>
                                 </div>
                               </div>
                             )}
@@ -659,20 +764,20 @@ I can help you review:
                 {/* Fixed Input Form */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-surface via-surface/95 to-transparent pt-6 pb-9 px-6 md:px-8 z-20">
                   <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto w-full relative">
-                    {(attachedPdf || attachmentError) && (
+                    {(attachedFile || attachmentError) && (
                       <div className="mb-2 flex justify-start">
-                        {attachedPdf ? (
+                        {attachedFile ? (
                           <div className="max-w-full bg-[#1c1924] border border-primary/25 rounded-xl px-3 py-2 flex items-center gap-3 shadow-lg shadow-black/20">
-                            <FileText className="h-4.5 w-4.5 text-primary shrink-0" />
+                            {getAttachmentIcon(attachedFile.label, "h-4.5 w-4.5 text-primary shrink-0")}
                             <div className="min-w-0">
-                              <p className="text-xs font-semibold text-white truncate">{attachedPdf.name}</p>
-                              <p className="text-[11px] text-on-surface-variant">PDF Document - {attachedPdf.size}</p>
+                              <p className="text-xs font-semibold text-white truncate">{attachedFile.name}</p>
+                              <p className="text-[11px] text-on-surface-variant">{attachedFile.label} - {attachedFile.size}</p>
                             </div>
                             <button
                               type="button"
-                              onClick={clearAttachedPdf}
+                              onClick={clearAttachedFile}
                               className="p-1 rounded-full text-on-surface-variant hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
-                              title="Remove PDF"
+                              title="Remove attachment"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
@@ -686,17 +791,17 @@ I can help you review:
                     )}
                     <div className="bg-[#211e27] rounded-full border border-white/10 flex items-center p-2.5 shadow-lg shadow-black/30 backdrop-blur-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-all">
                       <input
-                        ref={pdfInputRef}
+                        ref={fileInputRef}
                         type="file"
-                        accept="application/pdf,.pdf"
-                        onChange={handlePdfSelection}
+                        accept={ATTACHMENT_ACCEPT}
+                        onChange={handleFileSelection}
                         className="hidden"
                       />
                       <button 
                         type="button"
-                        onClick={() => pdfInputRef.current?.click()}
+                        onClick={() => fileInputRef.current?.click()}
                         className="p-3 text-on-surface-variant hover:text-on-surface rounded-full hover:bg-white/5 transition-all shrink-0 cursor-pointer"
-                        title="Attach PDF"
+                        title="Attach file"
                       >
                         <Paperclip className="h-5 w-5" />
                       </button>
@@ -712,7 +817,7 @@ I can help you review:
                       
                       <button 
                         type="submit"
-                        disabled={(!inputVal.trim() && !attachedPdf) || isTyping}
+                        disabled={(!inputVal.trim() && !attachedFile) || isTyping}
                         className="bg-primary text-white font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 active:scale-95 disabled:opacity-40 transition-all flex items-center gap-1.5 shrink-0 ml-1 cursor-pointer shadow-md shadow-primary/25"
                       >
                         <span>Ask AI</span>
