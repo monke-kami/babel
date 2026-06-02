@@ -5,7 +5,11 @@ import {
   Bookmark
 } from "lucide-react";
 
-export default function LandingPage() {
+interface LandingPageProps {
+  onSearchSubmit: (subject: string) => void;
+}
+
+export default function LandingPage({ onSearchSubmit }: LandingPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -36,8 +40,8 @@ export default function LandingPage() {
     // Simulate navigation/processing
     setTimeout(() => {
       setIsSearching(false);
-      alert(`Analyzing PYQs for subject: ${searchQuery}\n(This would navigate to the PYQ Analysis workspace)`);
-    }, 1500);
+      onSearchSubmit(searchQuery);
+    }, 1000);
   };
 
   const sampleChips = [
