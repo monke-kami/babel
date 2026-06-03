@@ -34,6 +34,8 @@ import {
   type AttachmentMeta
 } from "@/lib/attachments";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8001/api";
+
 interface Message {
   id: string;
   sender: "user" | "ai";
@@ -125,11 +127,20 @@ const SUBJECT_DATABASE: Record<string, {
   }
 };
 
+const resolveSubjectCode = (subject: string) => {
+  const parsedCode = subject.trim().toUpperCase();
+
+  return Object.keys(SUBJECT_DATABASE).find(
+    code => code === parsedCode || SUBJECT_DATABASE[code].name.toUpperCase().includes(parsedCode)
+  ) || "CST302";
+};
+
 export default function ChatPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
   const initialSubject = searchParams.get("subject") || "";
+  const initialPrompt = searchParams.get("prompt") || initialSubject;
   
   const [isLanding, setIsLanding] = useState(location.pathname === "/");
   const [isExiting, setIsExiting] = useState(false);
@@ -147,10 +158,18 @@ export default function ChatPage() {
   const [landingInput, setLandingInput] = useState("");
   
   const handleLandingSubmit = (subject: string) => {
+    const prompt = subject.trim();
+    if (!prompt) return;
+
     setIsExiting(true);
     setTimeout(() => {
+      const resolvedCode = resolveSubjectCode(prompt);
+
+      setCurrentSubjectCode(resolvedCode);
+      setMessages([]);
+      hasTriggered.current = false;
       setIsLanding(false);
-      navigate(`/chat?subject=${encodeURIComponent(subject)}`);
+      navigate(`/chat?subject=${encodeURIComponent(prompt)}&prompt=${encodeURIComponent(prompt)}`);
     }, 1200); 
   };
 
@@ -163,11 +182,7 @@ export default function ChatPage() {
 
   // Try matching subject code or default to CST302
   const parsedCode = initialSubject.trim().toUpperCase();
-  const matchedCode = Object.keys(SUBJECT_DATABASE).find(
-    code => code === parsedCode || SUBJECT_DATABASE[code].name.toUpperCase().includes(parsedCode)
-  ) || "CST302";
-
-  const currentSubjectInfo = SUBJECT_DATABASE[matchedCode];
+  const matchedCode = resolveSubjectCode(parsedCode);
 
   const [activeTab, setActiveTab] = useState<"analyses" | "saved" | "favorites">("analyses");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -227,22 +242,47 @@ export default function ChatPage() {
 
   const triggerSubjectAnalysis = async (code: string, customPrompt?: string) => {
     const subjectInfo = SUBJECT_DATABASE[code] || { name: code };
+    const userPrompt = customPrompt || `Can you find the PYQs and key topics for ${subjectInfo.name}?`;
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: "user",
-      text: customPrompt || `Can you find the PYQs and key topics for ${subjectInfo.name}?`
+      text: userPrompt
     };
     
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
-    setThinkingSteps(["Initiating web scraper for KTU papers..."]);
+    setThinkingSteps(["Calling TinyLlama to generate the search prompt..."]);
 
     try {
+      const promptRes = await fetch(`${API_BASE}/refine-prompt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          subject_code: code,
+          subject_name: subjectInfo.name,
+          user_prompt: userPrompt
+        })
+      });
+
+      const promptData = await promptRes.json();
+
+      if (!promptRes.ok || promptData.status !== "success") {
+        throw new Error(promptData.detail || "TinyLlama prompt generation failed");
+      }
+
+      const refinedPrompt = promptData.refined_prompt || userPrompt;
+      setThinkingSteps([
+        "TinyLlama generated the archive search prompt.",
+        `Search prompt: ${refinedPrompt}`
+      ]);
+
       const uiSteps = [
         "Downloading KTU past year question papers...",
         "Parsing PDFs and extracting questions...",
         "Clustering similar questions via Vector DB...",
-        "Running TinyLlama to generate canonical forms...",
+        "Refining canonical question groups...",
         "Compiling final ranked PDF..."
       ];
       
@@ -259,8 +299,17 @@ export default function ChatPage() {
         }
       }, 3500);
 
-      const res = await fetch(`http://localhost:8000/api/generate-full-report/${code}`, {
-        method: "POST"
+      const res = await fetch(`${API_BASE}/generate-dynamic-report`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          subject_code: code,
+          subject_name: subjectInfo.name,
+          query: refinedPrompt,
+          max_downloads: 8
+        })
       });
       
       clearInterval(progressInterval);
@@ -270,16 +319,42 @@ export default function ChatPage() {
       setThinkingSteps([]);
 
       if (res.ok && data.status === "success") {
+        const analysis = data.analysis;
+        const scrapeResult = data.scrape_result;
+
+        const topTopics = analysis.important_topics
+          .slice(0, 5)
+          .map((topic: any, index: number) => {
+            return `${index + 1}. **${topic.topic}** — appeared ${topic.count} times`;
+          })
+          .join("\n");
+
+        const topQuestions = analysis.frequently_asked_questions
+          .slice(0, 5)
+          .map((q: any, index: number) => {
+            return `${index + 1}. ${q.question} — **${q.frequency} times**`;
+          })
+          .join("\n");
+
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
           sender: "ai",
-          text: `I have successfully analyzed the past year papers for **${code}** using our TinyLlama pipeline. I have compiled the ranked, canonical questions into a PDF for you.`,
+          text:
+            `Dynamic web retrieval completed for **${analysis.subject_code}**.\n\n` +
+            `Candidate PDFs found: **${scrapeResult.candidate_pdf_count}**\n` +
+            `PDFs downloaded: **${scrapeResult.downloaded_count}**\n` +
+            `Questions extracted: **${analysis.raw_question_count}**\n\n` +
+            `TinyLlama search prompt: ${data.query || refinedPrompt}\n\n` +
+            `### Important Topics\n${topTopics}\n\n` +
+            `### Frequently Asked Questions\n${topQuestions}\n\n` +
+            `You can now ask: "most repeated questions", "important topics", or "most repeated question from scheduling".`,
           pdf: {
             name: `${code}_ranked.pdf`,
             size: "Generated Report",
             label: "Download Ranked Questions"
           }
         };
+
         setMessages(prev => [...prev, aiMessage]);
       } else {
         throw new Error(data.detail || "Unknown error from backend");
@@ -299,9 +374,9 @@ export default function ChatPage() {
   useEffect(() => {
     if (!isLanding && currentSubjectCode && messages.length === 0 && !hasTriggered.current) {
       hasTriggered.current = true;
-      triggerSubjectAnalysis(currentSubjectCode);
+      triggerSubjectAnalysis(currentSubjectCode, initialPrompt || undefined);
     }
-  }, [isLanding, currentSubjectCode, messages.length]);
+  }, [isLanding, currentSubjectCode, messages.length, initialPrompt]);
 
   // Handle switching subjects from right panel or saved list
   const selectSubject = (code: string) => {
@@ -418,26 +493,82 @@ export default function ChatPage() {
   });
 
   const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedInput = inputVal.trim();
+  e.preventDefault();
 
-    if (!trimmedInput && attachedFiles.length === 0) return;
+  const trimmedInput = inputVal.trim();
 
-    const userText = trimmedInput || `Attached ${attachedFiles.map(f => f.name).join(", ")}`;
-    
-    setInputVal("");
-    setAttachedFiles([]);
-    setAttachmentError("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    
-    await triggerSubjectAnalysis(currentSubjectCode, userText);
+  if (!trimmedInput && attachedFiles.length === 0) return;
+
+  const userText = trimmedInput || `Attached ${attachedFiles.map(f => f.name).join(", ")}`;
+
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    sender: "user",
+    text: userText,
+    attachments: attachedFiles
   };
+
+  setMessages(prev => [...prev, userMessage]);
+
+  setInputVal("");
+  setAttachedFiles([]);
+  setAttachmentError("");
+
+  if (fileInputRef.current) {
+    fileInputRef.current.value = "";
+  }
+
+  setIsTyping(true);
+  setThinkingSteps(["Searching analyzed PYQ intelligence..."]);
+
+  try {
+    const res = await fetch(`${API_BASE}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        subject_code: currentSubjectCode,
+        message: userText
+      })
+    });
+
+    const data = await res.json();
+
+    setIsTyping(false);
+    setThinkingSteps([]);
+
+    if (!res.ok) {
+      throw new Error(data.detail || "Chat request failed");
+    }
+
+    const aiMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      sender: "ai",
+      text: data.answer
+    };
+
+    setMessages(prev => [...prev, aiMessage]);
+
+  } catch (err) {
+    setIsTyping(false);
+    setThinkingSteps([]);
+
+    const errorMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      sender: "ai",
+      text: `I could not answer from the analyzed PYQ data: ${err}`
+    };
+
+    setMessages(prev => [...prev, errorMessage]);
+  }
+};
 
   const handleDownloadPDF = async (fileName: string) => {
     setDownloadStates(prev => ({ ...prev, [fileName]: "loading" }));
     
     try {
-      const response = await fetch(`http://localhost:8000/api/download/${fileName}`);
+      const response = await fetch(`${API_BASE}/download/${fileName}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

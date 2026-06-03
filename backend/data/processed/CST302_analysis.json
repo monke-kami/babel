@@ -1,0 +1,328 @@
+{
+  "subject_code": "CST302",
+  "subject_name": "Operating Systems",
+  "pdf_count": 1,
+  "raw_question_count": 8,
+  "important_topics": [
+    {
+      "topic": "Draw Transition Diagrams",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Input Buffering",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Four Compiler Construction",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Grammar",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "First Follow",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Different Conflicts Shift",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Allocation",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Process Synchronization",
+      "count": 1,
+      "importance_score": 100
+    }
+  ],
+  "frequently_asked_questions": [
+    {
+      "question": "Draw transition diagrams to represent the following (i)relational operators (ii)identifiers.",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "Draw transition diagrams to represent the following  (i)relational operators (ii)identifiers. OR"
+      ],
+      "topic": "Draw Transition Diagrams",
+      "module": "Dynamic PYQ Topics",
+      "rank": 1,
+      "overall_rank": 1
+    },
+    {
+      "question": "Write a note on input buffering with necessary diagrams. Specify (S) the advantages of using two buffer system and sentinels in input buffering.",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "Write a note on input buffering with necessary diagrams. Speciff (S) the advantages of using two buffer system and sentinels in input buffering."
+      ],
+      "topic": "Input Buffering",
+      "module": "Dynamic PYQ Topics",
+      "rank": 2,
+      "overall_rank": 2
+    },
+    {
+      "question": "Explain any four compiler construction tools.",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "Explain any four compiler construction tools.  ' Module ll"
+      ],
+      "topic": "Four Compiler Construction",
+      "module": "Dynamic PYQ Topics",
+      "rank": 3,
+      "overall_rank": 3
+    },
+    {
+      "question": "Consider the following grammar S-> (L) la L-> L,S I S (i)Remove left recursion from the grammar. (ii)Construct a predictive parsing table. (iii)Justify the statement \" The grammar is LL (l)",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "Consider the following grammar  S-> (L) la L-> L,S I S (i)Remove left recursion from the grammar. (ii)Constnrct a predictive parsing table. (iii)Justiff the statement \" The gftunmar is LL (l)\""
+      ],
+      "topic": "Grammar",
+      "module": "Dynamic PYQ Topics",
+      "rank": 4,
+      "overall_rank": 4
+    },
+    {
+      "question": "Write the recursive descent parsing procedure for the following grammar. S -> iCtSS' la S'->eSle c-> b OR Write algorithms for finding FIRST and FOLLOW sets. What is the role of FIRST and FOLLOW in a predictive parser?. b) Compute the FIRST and FOLLOW sets for the non terminals in, the following Grammar l'-: S->ADBlDbBlBa A ->da IBD B->glt D->hlt Construct SLR parsing table for the following grammar. Check if the grammar is SLR or not. Justify Yotn answer. E->T +E lT F-> id",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "Write the recursive descent parsing procedure for the following gftlrnmar.  S -> iCtSS' la S'->eSle c-> b OR t 14 a) Write algorithms for finding FIRST and FOLLOW sets. What is the role of  FIRST and FOLLOW in a predictive parser? . b) Compute the FIRST and FOLLOW sets for the non terminals in  , the following Grammar l'-: S->ADBlDbBlBa A ->da IBD B->glt D->hlt Module III l5 a) Construct SLR parsing table for the following gmmmar. Check if the grammar is  SLR or not. Justiff Yotn answer. E->T +E lT F-> id"
+      ],
+      "topic": "First Follow",
+      "module": "Dynamic PYQ Topics",
+      "rank": 5,
+      "overall_rank": 5
+    },
+    {
+      "question": "Write a note on different conflicts in shift reduce parser. Withthe help of syntax directed a\"H;:\": simple desk calculator, evaluate 'r the expression (3+5/2)*(2+413) and draw the annotated parse tree",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "Write a note on different conflicts in shift reduce parser.  t7 a) Withthe help of syntax directed a\"H;:\": simple desk calculator, evaluate  'r the expression (3+5/2)*(2+413) and draw the annotated parse tree"
+      ],
+      "topic": "Different Conflicts Shift",
+      "module": "Dynamic PYQ Topics",
+      "rank": 6,
+      "overall_rank": 6
+    },
+    {
+      "question": "Write an SDD for a simple type declaration. With the SDD of simple type declaration, write the steps involved in the evaluation of inherited attributes for the statement given below. int a,b,c OR Write a note on stack allocation, heap allocation and static allocation strategies.",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "Write an SDD for a simple type declaration. With the SDD of simple type  declaration, write the steps involved in the evaluation of inherited attributes for the statement given below. int a,b,c OR l8 a) Write a note on stack allocation, heap allocation and static allocation strategies."
+      ],
+      "topic": "Allocation",
+      "module": "Dynamic PYQ Topics",
+      "rank": 7,
+      "overall_rank": 7
+    },
+    {
+      "question": "What are the different representations of three address code? Write the different, ** address code representations of the following expression. (a+b)*(b+c)*(a+b+c) odule V - lg a) Explain any four principal sources of optimization. b) What is a basic block? Explain about the structure preserving transformations on. a basic block?",
+      "frequency": 1,
+      "years": [
+        "2024"
+      ],
+      "sources": [
+        "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+      ],
+      "variations": [
+        "What are the different representations of three address code? Write the different  , ** address code representations of the following expression. (a+b)*(b+c)*(a+b+c) odule V - lg a) Explain any four principal sources of optimization  .b) What is a basic block? Explain about the structure preserving transformations on .  a basic block? OR"
+      ],
+      "topic": "Process Synchronization",
+      "module": "Module 2",
+      "rank": 1,
+      "overall_rank": 8
+    }
+  ],
+  "ranked_by_module": {
+    "Dynamic PYQ Topics": [
+      {
+        "question": "Draw transition diagrams to represent the following (i)relational operators (ii)identifiers.",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "Draw transition diagrams to represent the following  (i)relational operators (ii)identifiers. OR"
+        ],
+        "topic": "Draw Transition Diagrams",
+        "module": "Dynamic PYQ Topics",
+        "rank": 1,
+        "overall_rank": 1
+      },
+      {
+        "question": "Write a note on input buffering with necessary diagrams. Specify (S) the advantages of using two buffer system and sentinels in input buffering.",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "Write a note on input buffering with necessary diagrams. Speciff (S) the advantages of using two buffer system and sentinels in input buffering."
+        ],
+        "topic": "Input Buffering",
+        "module": "Dynamic PYQ Topics",
+        "rank": 2,
+        "overall_rank": 2
+      },
+      {
+        "question": "Explain any four compiler construction tools.",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "Explain any four compiler construction tools.  ' Module ll"
+        ],
+        "topic": "Four Compiler Construction",
+        "module": "Dynamic PYQ Topics",
+        "rank": 3,
+        "overall_rank": 3
+      },
+      {
+        "question": "Consider the following grammar S-> (L) la L-> L,S I S (i)Remove left recursion from the grammar. (ii)Construct a predictive parsing table. (iii)Justify the statement \" The grammar is LL (l)",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "Consider the following grammar  S-> (L) la L-> L,S I S (i)Remove left recursion from the grammar. (ii)Constnrct a predictive parsing table. (iii)Justiff the statement \" The gftunmar is LL (l)\""
+        ],
+        "topic": "Grammar",
+        "module": "Dynamic PYQ Topics",
+        "rank": 4,
+        "overall_rank": 4
+      },
+      {
+        "question": "Write the recursive descent parsing procedure for the following grammar. S -> iCtSS' la S'->eSle c-> b OR Write algorithms for finding FIRST and FOLLOW sets. What is the role of FIRST and FOLLOW in a predictive parser?. b) Compute the FIRST and FOLLOW sets for the non terminals in, the following Grammar l'-: S->ADBlDbBlBa A ->da IBD B->glt D->hlt Construct SLR parsing table for the following grammar. Check if the grammar is SLR or not. Justify Yotn answer. E->T +E lT F-> id",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "Write the recursive descent parsing procedure for the following gftlrnmar.  S -> iCtSS' la S'->eSle c-> b OR t 14 a) Write algorithms for finding FIRST and FOLLOW sets. What is the role of  FIRST and FOLLOW in a predictive parser? . b) Compute the FIRST and FOLLOW sets for the non terminals in  , the following Grammar l'-: S->ADBlDbBlBa A ->da IBD B->glt D->hlt Module III l5 a) Construct SLR parsing table for the following gmmmar. Check if the grammar is  SLR or not. Justiff Yotn answer. E->T +E lT F-> id"
+        ],
+        "topic": "First Follow",
+        "module": "Dynamic PYQ Topics",
+        "rank": 5,
+        "overall_rank": 5
+      },
+      {
+        "question": "Write a note on different conflicts in shift reduce parser. Withthe help of syntax directed a\"H;:\": simple desk calculator, evaluate 'r the expression (3+5/2)*(2+413) and draw the annotated parse tree",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "Write a note on different conflicts in shift reduce parser.  t7 a) Withthe help of syntax directed a\"H;:\": simple desk calculator, evaluate  'r the expression (3+5/2)*(2+413) and draw the annotated parse tree"
+        ],
+        "topic": "Different Conflicts Shift",
+        "module": "Dynamic PYQ Topics",
+        "rank": 6,
+        "overall_rank": 6
+      },
+      {
+        "question": "Write an SDD for a simple type declaration. With the SDD of simple type declaration, write the steps involved in the evaluation of inherited attributes for the statement given below. int a,b,c OR Write a note on stack allocation, heap allocation and static allocation strategies.",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "Write an SDD for a simple type declaration. With the SDD of simple type  declaration, write the steps involved in the evaluation of inherited attributes for the statement given below. int a,b,c OR l8 a) Write a note on stack allocation, heap allocation and static allocation strategies."
+        ],
+        "topic": "Allocation",
+        "module": "Dynamic PYQ Topics",
+        "rank": 7,
+        "overall_rank": 7
+      }
+    ],
+    "Module 2": [
+      {
+        "question": "What are the different representations of three address code? Write the different, ** address code representations of the following expression. (a+b)*(b+c)*(a+b+c) odule V - lg a) Explain any four principal sources of optimization. b) What is a basic block? Explain about the structure preserving transformations on. a basic block?",
+        "frequency": 1,
+        "years": [
+          "2024"
+        ],
+        "sources": [
+          "CST302_COMPILER_DESIGN_MAY_2024.PDF"
+        ],
+        "variations": [
+          "What are the different representations of three address code? Write the different  , ** address code representations of the following expression. (a+b)*(b+c)*(a+b+c) odule V - lg a) Explain any four principal sources of optimization  .b) What is a basic block? Explain about the structure preserving transformations on .  a basic block? OR"
+        ],
+        "topic": "Process Synchronization",
+        "module": "Module 2",
+        "rank": 1,
+        "overall_rank": 8
+      }
+    ]
+  }
+}

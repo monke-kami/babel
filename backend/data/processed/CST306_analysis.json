@@ -1,0 +1,404 @@
+{
+  "subject_code": "CST306",
+  "subject_name": "Computer Networks",
+  "pdf_count": 1,
+  "raw_question_count": 10,
+  "important_topics": [
+    {
+      "topic": "Bluetooth Technology",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Draw Process Flowchart",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Out Features Wireless",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Out Various Approaches",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Congestiorr Control Technique",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Flags Available Tcp",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Performance Issues Associated",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "About Major Components",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Various Liryers Osi",
+      "count": 1,
+      "importance_score": 100
+    },
+    {
+      "topic": "Standard",
+      "count": 1,
+      "importance_score": 100
+    }
+  ],
+  "frequently_asked_questions": [
+    {
+      "question": "Write a short note on Bluetooth technology.",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "Write a short note on Bluetooth technology."
+      ],
+      "topic": "Bluetooth Technology",
+      "module": "Dynamic PYQ Topics",
+      "rank": 1,
+      "overall_rank": 1
+    },
+    {
+      "question": "Draw the process flowchart for CSIVIA/CA used in wireless LAN and explain.",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "Draw the process flowchart for CSIVIA/CA used in wireless LAN and explain."
+      ],
+      "topic": "Draw Process Flowchart",
+      "module": "Dynamic PYQ Topics",
+      "rank": 2,
+      "overall_rank": 2
+    },
+    {
+      "question": "List out the features of wireless LAN and explain it in detail. 4, Explain the CRC error detection mechanism using Generator polynomial.",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "List out the features of wireless LAN and explain it in detail. 4, Explain the CRC error detection mechanism using Generator polynomial."
+      ],
+      "topic": "Out Features Wireless",
+      "module": "Dynamic PYQ Topics",
+      "rank": 3,
+      "overall_rank": 3
+    },
+    {
+      "question": "List out the various approaches of quality of service.",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "List out the various approaches of quality of service."
+      ],
+      "topic": "Out Various Approaches",
+      "module": "Dynamic PYQ Topics",
+      "rank": 4,
+      "overall_rank": 4
+    },
+    {
+      "question": "Explain the congestiorr control technique in TCp.",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "Explain the congestiorr control technique in TCp."
+      ],
+      "topic": "Congestiorr Control Technique",
+      "module": "Dynamic PYQ Topics",
+      "rank": 5,
+      "overall_rank": 5
+    },
+    {
+      "question": "What are the flags available in TCp header ? Explain.",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "What are the flags available in TCp header ? Explain."
+      ],
+      "topic": "Flags Available Tcp",
+      "module": "Dynamic PYQ Topics",
+      "rank": 6,
+      "overall_rank": 6
+    },
+    {
+      "question": "What are the performance issues associated with Transport layer protocols?",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "What are the performance issues associated with Transport layer protocols?"
+      ],
+      "topic": "Performance Issues Associated",
+      "module": "Dynamic PYQ Topics",
+      "rank": 7,
+      "overall_rank": 7
+    },
+    {
+      "question": "Explain in detail about major components of an electronic mail system.",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "Explain in detail about major components of an electronic mail system."
+      ],
+      "topic": "About Major Components",
+      "module": "Dynamic PYQ Topics",
+      "rank": 8,
+      "overall_rank": 8
+    },
+    {
+      "question": "(a) Explain various liryers of OSI reference model with a neat diagram. Maximum: 100 Marks (8x5=40marks) (b)",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "(a) Explain various liryers of OSI reference model with a neat diagram. Maximum: 100 Marks (8x5=40marks) (b)"
+      ],
+      "topic": "Various Liryers Osi",
+      "module": "Dynamic PYQ Topics",
+      "rank": 9,
+      "overall_rank": 9
+    },
+    {
+      "question": "(a) Or What are the common standard Ethernet implementations ? Ekplain each Ethernet standard with a neat diagram. Describe various Enor detection and Error correction methods with suitable example \" 'Or Discuss about congestion control algorithms(b) Thrn ovei ,.t i.; c 28t80 ltCP pro-tocols. Or i transitioir diagraui for TCP connerstion establishment, data trirnsfer and the DNS ininternet. Or Write sbrt notas on Slorld \\4ride Sreb. It. (4 x 16 = fl) marks)",
+      "frequency": 1,
+      "years": [
+        "2017"
+      ],
+      "sources": [
+        "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+      ],
+      "variations": [
+        "(a) Or What are the common standard Ethernet implementations ? Ekplain each Ethernet standard with a neat diagram. Describe various Enor detection and Error correction methods with suitable example \" 'Or Discuss about congestion control algorithms(b) Thrn ovei ,.t i.; c 28t80 ltCP pro-tocols. Or i transitioir diagraui for TCP connerstion establishment, data trirnsfer and the DNS ininternet. Or Write sbrt notas on Slorld \\4ride Sreb. It. (4 x 16 = fl) marks)"
+      ],
+      "topic": "Standard",
+      "module": "Dynamic PYQ Topics",
+      "rank": 10,
+      "overall_rank": 10
+    }
+  ],
+  "ranked_by_module": {
+    "Dynamic PYQ Topics": [
+      {
+        "question": "Write a short note on Bluetooth technology.",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "Write a short note on Bluetooth technology."
+        ],
+        "topic": "Bluetooth Technology",
+        "module": "Dynamic PYQ Topics",
+        "rank": 1,
+        "overall_rank": 1
+      },
+      {
+        "question": "Draw the process flowchart for CSIVIA/CA used in wireless LAN and explain.",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "Draw the process flowchart for CSIVIA/CA used in wireless LAN and explain."
+        ],
+        "topic": "Draw Process Flowchart",
+        "module": "Dynamic PYQ Topics",
+        "rank": 2,
+        "overall_rank": 2
+      },
+      {
+        "question": "List out the features of wireless LAN and explain it in detail. 4, Explain the CRC error detection mechanism using Generator polynomial.",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "List out the features of wireless LAN and explain it in detail. 4, Explain the CRC error detection mechanism using Generator polynomial."
+        ],
+        "topic": "Out Features Wireless",
+        "module": "Dynamic PYQ Topics",
+        "rank": 3,
+        "overall_rank": 3
+      },
+      {
+        "question": "List out the various approaches of quality of service.",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "List out the various approaches of quality of service."
+        ],
+        "topic": "Out Various Approaches",
+        "module": "Dynamic PYQ Topics",
+        "rank": 4,
+        "overall_rank": 4
+      },
+      {
+        "question": "Explain the congestiorr control technique in TCp.",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "Explain the congestiorr control technique in TCp."
+        ],
+        "topic": "Congestiorr Control Technique",
+        "module": "Dynamic PYQ Topics",
+        "rank": 5,
+        "overall_rank": 5
+      },
+      {
+        "question": "What are the flags available in TCp header ? Explain.",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "What are the flags available in TCp header ? Explain."
+        ],
+        "topic": "Flags Available Tcp",
+        "module": "Dynamic PYQ Topics",
+        "rank": 6,
+        "overall_rank": 6
+      },
+      {
+        "question": "What are the performance issues associated with Transport layer protocols?",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "What are the performance issues associated with Transport layer protocols?"
+        ],
+        "topic": "Performance Issues Associated",
+        "module": "Dynamic PYQ Topics",
+        "rank": 7,
+        "overall_rank": 7
+      },
+      {
+        "question": "Explain in detail about major components of an electronic mail system.",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "Explain in detail about major components of an electronic mail system."
+        ],
+        "topic": "About Major Components",
+        "module": "Dynamic PYQ Topics",
+        "rank": 8,
+        "overall_rank": 8
+      },
+      {
+        "question": "(a) Explain various liryers of OSI reference model with a neat diagram. Maximum: 100 Marks (8x5=40marks) (b)",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "(a) Explain various liryers of OSI reference model with a neat diagram. Maximum: 100 Marks (8x5=40marks) (b)"
+        ],
+        "topic": "Various Liryers Osi",
+        "module": "Dynamic PYQ Topics",
+        "rank": 9,
+        "overall_rank": 9
+      },
+      {
+        "question": "(a) Or What are the common standard Ethernet implementations ? Ekplain each Ethernet standard with a neat diagram. Describe various Enor detection and Error correction methods with suitable example \" 'Or Discuss about congestion control algorithms(b) Thrn ovei ,.t i.; c 28t80 ltCP pro-tocols. Or i transitioir diagraui for TCP connerstion establishment, data trirnsfer and the DNS ininternet. Or Write sbrt notas on Slorld \\4ride Sreb. It. (4 x 16 = fl) marks)",
+        "frequency": 1,
+        "years": [
+          "2017"
+        ],
+        "sources": [
+          "CST306_CS_14_604_Computer_Networks_April_2017.PDF"
+        ],
+        "variations": [
+          "(a) Or What are the common standard Ethernet implementations ? Ekplain each Ethernet standard with a neat diagram. Describe various Enor detection and Error correction methods with suitable example \" 'Or Discuss about congestion control algorithms(b) Thrn ovei ,.t i.; c 28t80 ltCP pro-tocols. Or i transitioir diagraui for TCP connerstion establishment, data trirnsfer and the DNS ininternet. Or Write sbrt notas on Slorld \\4ride Sreb. It. (4 x 16 = fl) marks)"
+        ],
+        "topic": "Standard",
+        "module": "Dynamic PYQ Topics",
+        "rank": 10,
+        "overall_rank": 10
+      }
+    ]
+  }
+}
